@@ -1,0 +1,31 @@
+package org.kahai.framework.dtos.response;
+
+import java.util.UUID;
+
+import org.kahai.framework.models.Difficulty;
+import org.kahai.framework.transients.Participant;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class ParticipantResponse {
+    private UUID uuid;
+    private UUID user;
+    private String room;
+    private String nickname;
+    private Difficulty currentDifficulty = Difficulty.NORMAL;
+    private int score = 0;
+
+    public ParticipantResponse(Participant participant) {
+        this.uuid = participant.getUuid();
+        this.nickname = participant.getNickname();
+        this.score = participant.getScore();
+        this.room = participant.getRoom().getCode();
+        this.currentDifficulty = participant.getCurrentDifficulty();
+        if(participant.getUser().isPresent()) {
+            this.user = participant.getUser().get().getUuid();
+        };
+    };
+};

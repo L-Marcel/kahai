@@ -4,4 +4,4 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public @FunctionalInterface
-interface ChatbotCallback extends Consumer<Optional<String>> {};
+interface GenAICallback extends Consumer<Optional<String>> {};

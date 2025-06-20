@@ -7,7 +7,7 @@ import org.kahai.framework.transients.Room;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AccessControlService {
+public final class AccessControlService {
     public void checkGameOwnership(User user, Game game) {
         if(!game.getOwner().getUuid().equals(user.getUuid())) 
             throw new AccessDenied();

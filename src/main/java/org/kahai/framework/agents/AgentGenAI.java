@@ -8,6 +8,8 @@ import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.models.Question;
 import org.kahai.framework.transients.QuestionVariant;
 import org.kahai.framework.transients.Room;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +17,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
-public class PedagogicalAgent {
+public class AgentGenAI {
+    private static final Logger log = LoggerFactory.getLogger(AgentGenAI.class);
+
     @Autowired
-    private Chatbot chatbot;
+    private GenAI genAI;
 
     @Autowired
     private RoomEventPublisher publisher;
@@ -133,18 +137,18 @@ public class PedagogicalAgent {
     public void generateRoomQuestionsVariants(
         Question question,   
         Room room,
-        PedagogicalAgentCallback callback
+        AgentGenAICallback callback
     ) {
         String prompt = buildPrompt(question);
 
-        System.out.println(prompt);
+        log.debug("Enviando prompt para o Agente Gen AI!\n\n"+prompt+"\n");
 
         publisher.emitGenerationStatus(
             room, 
             "Gerando variações"
         );
 
-        chatbot.request(
+        genAI.request(
             this.SYSTEM_PROMPT, 
             prompt, 
             (response) -> {
@@ -170,7 +174,6 @@ public class PedagogicalAgent {
                         );
 
                         variants.forEach(variant -> variant.setOriginal(question));
-
                         publisher.emitGenerationStatus(
                             room, 
                             "Variações geradas com sucesso"
@@ -178,14 +181,14 @@ public class PedagogicalAgent {
 
                         callback.accept(variants);
                     } catch (IOException e) {
+                        log.error("Formato invalido recebido pela IA!\n\n" + e.getMessage() + "\n");
                         publisher.emitGenerationStatus(
                             room, 
                             "Formato invalido recebido pela IA"
                         );
-
-                        e.printStackTrace();
                     }
                 }, () -> {
+                    log.error("Falha ao gerar variações da pergunta ({})!", question.getUuid());
                     publisher.emitGenerationStatus(
                         room, 
                         "Falha ao gerar variações"

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class QuestionVariant {
+public final class QuestionVariant {
     private UUID uuid = UUID.randomUUID();
     private String question;
     private Difficulty difficulty = Difficulty.NORMAL;

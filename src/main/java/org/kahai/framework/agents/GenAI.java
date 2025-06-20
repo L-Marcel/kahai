@@ -1,9 +1,9 @@
 package org.kahai.framework.agents;
 
-public interface Chatbot {
+public interface GenAI {
     void request(
         String systemPrompt, 
         String prompt, 
-        ChatbotCallback callback
+        GenAICallback callback
     );
 };

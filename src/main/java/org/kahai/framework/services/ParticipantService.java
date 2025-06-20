@@ -12,11 +12,15 @@ import org.kahai.framework.models.User;
 import org.kahai.framework.repositories.ParticipantRepository;
 import org.kahai.framework.transients.Participant;
 import org.kahai.framework.transients.Room;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ParticipantService {
+    private static final Logger log = LoggerFactory.getLogger(ParticipantService.class);
+
     @Autowired
     private ParticipantRepository repository;
 
@@ -67,6 +71,10 @@ public class ParticipantService {
             room.getParticipants().add(participant);
         }
 
+        log.info("Novo participante ({}) adicionado na sala ({})!", 
+            participant.getUuid(), 
+            room.getCode()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
 
         return participant;
@@ -89,8 +97,10 @@ public class ParticipantService {
     public void removeAllByRoom(Room room) {
         synchronized(room.getParticipants()) {
             for (Participant participant : room.getParticipants()) {
+                participant.getRoom().getParticipants().remove(participant);
                 this.repository.remove(participant);
             };
+            log.info("Participantes da sala ({}) removidos!", room.getCode());
         };
     };
 
@@ -100,6 +110,7 @@ public class ParticipantService {
             this.repository.remove(participant);
         };
 
+        log.info("Participante ({}) removido da sala ({})!");
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     };
 
@@ -121,6 +132,10 @@ public class ParticipantService {
             };
         }
 
+        log.info("Participante ({}) respondeu a pergunta ({})!", 
+            participant.getUuid(), 
+            question.getUuid()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     };
 };

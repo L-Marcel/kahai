@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.kahai.framework.KahaiProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +18,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
-public class AIChatbot implements Chatbot {
+public class GenAIImpl implements GenAI {
+    private static final Logger log = LoggerFactory.getLogger(GenAI.class);
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
     private final float temperature;
@@ -27,7 +30,7 @@ public class AIChatbot implements Chatbot {
     @Autowired
     private KeySource keySource;
 
-    public AIChatbot(KahaiProperties properties) {
+    public GenAIImpl(KahaiProperties properties) {
         this.temperature = properties.getAi().getTemperature();
         this.model = properties.getAi().getModel();
         this.httpClient = HttpClient.newHttpClient();
@@ -38,7 +41,7 @@ public class AIChatbot implements Chatbot {
     public void request(
         String systemPrompt, 
         String prompt, 
-        ChatbotCallback callback
+        GenAICallback callback
     ) {
         try {
             Map<String, Object> requestBody = Map.of(
@@ -80,10 +83,7 @@ public class AIChatbot implements Chatbot {
                         callback.accept(Optional.of(responseText));
                     } catch (Exception e) {
                         callback.accept(Optional.empty());
-                        System.out.println(
-                            "Erro ao processar a resposta: " + 
-                            e.getMessage()
-                        );
+                        log.error("Erro ao processar a resposta do agente!\n\n" + e.getMessage() + "\n");
                     };
                 })
                 .exceptionally((e) -> {
@@ -91,6 +91,7 @@ public class AIChatbot implements Chatbot {
                     return null;
                 });
         } catch (Exception e) {
+            log.error("Erro ao enviar requisição para o agente!\n\n" + e.getMessage() + "\n");
             callback.accept(Optional.empty());
         };
     };

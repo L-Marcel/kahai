@@ -2,12 +2,17 @@ package org.kahai.framework;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.Setter;
 
 @Component
 @ConfigurationProperties(prefix = "kahai")
+@Validated
 public class KahaiProperties {
     @Getter
     private final Jwt jwt = new Jwt();
@@ -15,7 +20,10 @@ public class KahaiProperties {
     @Getter
     @Setter
     public static class Jwt {
-        private String secret = "";
+        @NotBlank
+        private String secret;
+
+        @Positive
         private long expiration = 24 * 60 * 60 * 1000L;
     };
     
@@ -24,7 +32,11 @@ public class KahaiProperties {
     
     @Setter
     public static class Cors {
-        private String allowedOrigins = "http://localhost:5173";
+        @NotBlank
+        private String allowedOrigins;
+
+        @Getter
+        private boolean allowCredentials = true;
 
         public String[] getAllowedOrigins() {
             return KahaiUtils.stringToArray(this.allowedOrigins);
@@ -37,8 +49,10 @@ public class KahaiProperties {
     @Setter
     public static class WebSocket {
         @Getter
+        @NotBlank
         private String endpoint = "/websocket";
 
+        @NotBlank
         private String allowedOrigins = "*";
 
         public String[] getAllowedOrigins() {
@@ -46,9 +60,11 @@ public class KahaiProperties {
         };
 
         @Getter
+        @NotBlank
         private String simpleBroker = "/channel/events/rooms";
 
         @Getter
+        @NotBlank
         private String applicationDestinationPrefixes = "/channel/triggers/rooms";
     };
 
@@ -58,12 +74,15 @@ public class KahaiProperties {
     @Setter
     public static class AI {
         @Getter
+        @NotBlank
         private String model;
 
         @Getter
+        @PositiveOrZero
         private float temperature = 0;
 
-        private String keys = "";
+        @NotBlank
+        private String keys;
 
         public String[] getKeys() {
             return KahaiUtils.stringToArray(this.keys);

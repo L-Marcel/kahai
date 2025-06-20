@@ -13,11 +13,15 @@ import org.kahai.framework.models.Game;
 import org.kahai.framework.models.Question;
 import org.kahai.framework.models.User;
 import org.kahai.framework.repositories.GameRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GameService {
+public final class GameService {
+    private static final Logger log = LoggerFactory.getLogger(GameService.class);
+
     @Autowired
     private GameRepository gameRepository;
 
@@ -63,6 +67,7 @@ public class GameService {
 
         game.setQuestions(questions);
         gameRepository.save(game);
+        log.info("Novo jogo ({}) criado!", game.getUuid());
 
         return game;
     };

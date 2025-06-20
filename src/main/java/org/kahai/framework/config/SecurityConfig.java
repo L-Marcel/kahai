@@ -27,9 +27,11 @@ public class SecurityConfig {
     private JwtAuthFilter jwtAuthFilter;
 
     private final List<String> allowedOrigins;
+    private final boolean allowCredentials;
 
     public SecurityConfig(KahaiProperties properties) {
         this.allowedOrigins = List.of(properties.getCors().getAllowedOrigins());
+        this.allowCredentials = properties.getCors().isAllowCredentials();
     };
 
     @Bean
@@ -65,7 +67,7 @@ public class SecurityConfig {
 
         configuration.setAllowedOriginPatterns(allowedOrigins);
         
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(this.allowCredentials);
         configuration.setAllowedMethods(Arrays.asList(
             "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));

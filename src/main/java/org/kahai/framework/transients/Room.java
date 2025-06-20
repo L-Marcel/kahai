@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Room {
+public final class Room {
     private String code;
     private Game game;
     private List<Participant> participants;

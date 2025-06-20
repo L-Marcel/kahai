@@ -1,8 +1,18 @@
 module org.hakai.framework {
-    exports org.kahai.framework;
+    exports org.kahai.framework.transients;
+    exports org.kahai.framework.models;
+    exports org.kahai.framework.services;
+    exports org.kahai.framework.services.strategies;
+    exports org.kahai.framework.services.queue;
+    exports org.kahai.framework.events;
+    exports org.kahai.framework.annotations;
+    exports org.kahai.framework.dtos.request;
+    exports org.kahai.framework.dtos.response;
+    exports org.kahai.framework.errors;
 
     opens org.kahai.framework to org.hibernate.orm.core, org.springframework.beans, org.springframework.core;
 
+    requires transitive org.apache.commons.lang3;
     requires transitive spring.boot.starter;
     requires transitive spring.boot.autoconfigure;
     requires transitive spring.boot;
@@ -30,4 +40,6 @@ module org.hakai.framework {
     requires transitive jakarta.servlet;
     requires transitive com.auth0.jwt;
     requires transitive spring.data.commons;
+    requires transitive jakarta.validation;
+    requires transitive org.slf4j;
 }

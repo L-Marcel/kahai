@@ -2,7 +2,7 @@ package org.kahai.framework.errors;
 
 import org.springframework.http.HttpStatus;
 
-public class ParticipantAlreadyInRoom extends HttpError {
+public final class ParticipantAlreadyInRoom extends HttpError {
     public ParticipantAlreadyInRoom() {
         super(
             "Conflito de participantes, tente usar outro apelido, " + 

@@ -9,12 +9,16 @@ import org.kahai.framework.errors.MissingFields;
 import org.kahai.framework.errors.WeakPassword;
 import org.kahai.framework.models.User;
 import org.kahai.framework.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+public final class UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     private UserRepository repository;
 
@@ -48,6 +52,8 @@ public class UserService {
 
         User user = new User(email, encoder.encode(password), name);
         repository.save(user);
+
+        log.info("Novo usuário cadastrado!");
 
         return user;
     };

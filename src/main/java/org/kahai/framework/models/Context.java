@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "contexts")
-public class Context {
+public final class Context {
     @Id
     @GeneratedValue(strategy=GenerationType.UUID)
     private UUID id;

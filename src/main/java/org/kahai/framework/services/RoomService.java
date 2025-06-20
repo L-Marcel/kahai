@@ -11,11 +11,15 @@ import org.kahai.framework.models.Game;
 import org.kahai.framework.models.User;
 import org.kahai.framework.repositories.RoomRepository;
 import org.kahai.framework.transients.Room;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RoomService {
+    private static final Logger log = LoggerFactory.getLogger(RoomService.class);
+
     @Autowired
     private RoomRepository repository;
 
@@ -71,6 +75,8 @@ public class RoomService {
             );
 
             repository.add(room);
+
+            log.info("Nova sala ({}) criada!", room.getCode());
             return room;
         }
     };
@@ -79,6 +85,7 @@ public class RoomService {
         Room room
     ) throws RoomNotFound, ParticipantAlreadyInRoom {
         repository.remove(room);
+        log.info("Sala ({}) fechada!", room.getCode());
         roomEventPublisher.emitRoomClosed(room);
     };
 };

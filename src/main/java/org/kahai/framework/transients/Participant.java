@@ -9,7 +9,7 @@ import org.kahai.framework.models.User;
 import lombok.Getter;
 
 @Getter 
-public class Participant {
+public final class Participant {
     private UUID uuid = UUID.randomUUID();
     private Room room;
     private Optional<User> user;

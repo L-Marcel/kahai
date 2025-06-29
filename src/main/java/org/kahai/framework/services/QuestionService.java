@@ -13,12 +13,12 @@ import java.util.stream.Collectors;
 import org.kahai.framework.agents.AgentGenAI;
 import org.kahai.framework.agents.AgentGenAICallback;
 import org.kahai.framework.errors.QuestionNotFound;
+import org.kahai.framework.errors.VariantsDistributionStrategyNotDefined;
 import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.models.Game;
 import org.kahai.framework.models.Question;
 import org.kahai.framework.repositories.QuestionRepository;
 import org.kahai.framework.services.queue.QuestionVariantsRequest;
-import org.kahai.framework.services.strategies.VariantsDistributionByDifficulty;
 import org.kahai.framework.services.strategies.VariantsDistributionStrategy;
 import org.kahai.framework.transients.Participant;
 import org.kahai.framework.transients.QuestionVariant;
@@ -49,10 +49,6 @@ public final class QuestionService {
     public void setDistributionStrategy(VariantsDistributionStrategy strategy) {
         this.distributionStrategy = strategy;
         log.info("Estratégia de distribuição de questões alterada!");
-    };
-
-    public QuestionService() {
-        this.distributionStrategy = new VariantsDistributionByDifficulty();
     };
 
     private Set<String> generatingRooms = ConcurrentHashMap.newKeySet();
@@ -133,13 +129,16 @@ public final class QuestionService {
         UUID originalUuid,
         Room room
     ) {
+        if(this.distributionStrategy == null)
+            throw new VariantsDistributionStrategyNotDefined();
+        
         List<Participant> participants = room.getParticipants();
         Question original = this.findQuestionById(originalUuid);
 
         synchronized(participants) {
             log.info("Selecionando e enviando variante da pergunta ({})!", original.getUuid());
             for (Participant participant : participants) {
-                Optional<QuestionVariant> selected = this.distributionStrategy. selectVariant(
+                Optional<QuestionVariant> selected = this.distributionStrategy.selectVariant(
                     participant, 
                     variants
                 );
@@ -160,6 +159,9 @@ public final class QuestionService {
         Map<UUID, List<QuestionVariant>> mappedVariants,
         Room room
     ) {
+        if(this.distributionStrategy == null)
+            throw new VariantsDistributionStrategyNotDefined();
+         
         List<Participant> participants = room.getParticipants();
         List<QuestionVariant> variants = new LinkedList<>();
 
@@ -180,7 +182,7 @@ public final class QuestionService {
             log.info("Selecionando e enviando variantes das perguntas da sala ({})!", room.getCode());
 
             for (Participant participant : participants) {
-                List<QuestionVariant> selecteds = this.distributionStrategy. selectVariants(
+                List<QuestionVariant> selecteds = this.distributionStrategy.selectVariants(
                     participant, 
                     variants
                 );

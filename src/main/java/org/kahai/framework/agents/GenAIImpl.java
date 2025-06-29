@@ -69,8 +69,15 @@ public class GenAIImpl implements GenAI {
                 .build();
 
             httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept((responseBody) -> {
+                .thenAccept((response) -> {
+                    String responseBody = response.body();
+
+                    if(response.statusCode() != 200) {
+                        log.error("Erro ao realizar a requisição para o agente!\n\n" + responseBody + "\n");
+                        callback.accept(Optional.empty());
+                        return;
+                    };
+
                     try {
                         JsonNode root = objectMapper.readTree(responseBody);
                         String responseText = root
@@ -85,10 +92,6 @@ public class GenAIImpl implements GenAI {
                         callback.accept(Optional.empty());
                         log.error("Erro ao processar a resposta do agente!\n\n" + e.getMessage() + "\n");
                     };
-                })
-                .exceptionally((e) -> {
-                    callback.accept(Optional.empty());
-                    return null;
                 });
         } catch (Exception e) {
             log.error("Erro ao enviar requisição para o agente!\n\n" + e.getMessage() + "\n");

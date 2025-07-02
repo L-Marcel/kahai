@@ -18,10 +18,8 @@ public class Answer {
     @Column(nullable = false)
     private String text;
 
-    @Column(name = "is_correct", nullable = false)
-    private boolean isCorrect;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")@JsonBackReference
+    @JoinColumn(name = "question_id")
+    @JsonBackReference
     private ConcreteQuestion question;
 }

@@ -8,6 +8,7 @@ import org.kahai.framework.errors.ParticipantAlreadyInRoom;
 import org.kahai.framework.errors.ParticipantNotFound;
 import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.models.User;
+import org.kahai.framework.models.questions.ConcreteQuestion;
 import org.kahai.framework.models.questions.Question;
 import org.kahai.framework.repositories.ParticipantRepository;
 import org.kahai.framework.transients.Participant;
@@ -119,7 +120,7 @@ public class ParticipantService {
         Participant participant,
         String answer
     ) {
-        boolean isCorrect = question.getAnswer().equals(answer);
+        boolean isCorrect = question.getRoot().getAnswers().equals(answer);
 
         synchronized(participant) {
             participant.setNetxDifficulty(isCorrect);
@@ -134,7 +135,7 @@ public class ParticipantService {
 
         log.info("Participante ({}) respondeu a pergunta ({})!", 
             participant.getUuid(), 
-            question.getUuid()
+            question.getRoot().getUuid()
         );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     };

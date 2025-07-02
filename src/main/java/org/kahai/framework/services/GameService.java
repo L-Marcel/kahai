@@ -10,7 +10,7 @@ import org.kahai.framework.dtos.request.AnswerRequestBody;
 import org.kahai.framework.dtos.request.CreateGameRequestBody;
 import org.kahai.framework.dtos.request.CreateQuestionRequestBody;
 import org.kahai.framework.errors.GameNotFound;
-import org.kahai.framework.factory.QuestionFactory;
+import org.kahai.framework.files.QuestionStorage;
 import org.kahai.framework.models.Answer;
 import org.kahai.framework.models.Context;
 import org.kahai.framework.models.Game;
@@ -31,10 +31,11 @@ public final class GameService {
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
 
     @Autowired
-    private GameRepository gameRepository
-    ;
+    private QuestionStorage storage;
+
     @Autowired
-    private QuestionFactory questionFactory; @Autowired
+    private GameRepository gameRepository
+    ; @Autowired
     private ObjectMapper objectMapper;
 
     public Game findGameById(UUID uuid) throws GameNotFound {
@@ -47,61 +48,36 @@ public final class GameService {
     };
 
     public Game createGame(CreateGameRequestBody gameBody, User user) {
-    Game game = new Game();
-    game.setOwner(user);
-    game.setTitle(gameBody.getTitle());
+        Game game = new Game();
+        game.setTitle(gameBody.getTitle()); 
+        game.setOwner(user);
 
-    List<ConcreteQuestion> questionsForGame = new ArrayList<>();
+        if (gameBody.getQuestions() != null) {
 
-    for (CreateQuestionRequestBody questionBody : gameBody.getQuestions()) {
-        ConcreteQuestion entity = new ConcreteQuestion();
-        entity.setGame(game);
-        entity.setQuestion(questionBody.getQuestion());
-        
-        List<Answer> answerEntities = new ArrayList<>();
-        if (questionBody.getAnswers() != null && !questionBody.getAnswers().isEmpty()) {
-            for (AnswerRequestBody ansBody : questionBody.getAnswers()) {
-                Answer answerEntity = new Answer();
-                answerEntity.setText(ansBody.getText());
-                answerEntity.setCorrect(ansBody.isCorrect());
-                answerEntity.setQuestion(entity);
-                answerEntities.add(answerEntity);
-            }
-        } else if (questionBody.getAnswer() != null && !questionBody.getAnswer().isBlank()) {
-            Answer answerEntity = new Answer();
-            answerEntity.setText(questionBody.getAnswer());
-            answerEntity.setCorrect(true);
-            answerEntity.setQuestion(entity);
-            answerEntities.add(answerEntity);
-        }
-        entity.setAnswers(answerEntities);
-        
-        if (questionBody.getContext() != null && !questionBody.getContext().isEmpty()) {
-            List<String> contextNames = questionBody.getContext();
-            List<Context> contextEntities = contextNames.stream()
-                .map(name -> {
-                    Context context = new Context(name);
-                    context.setQuestion(entity);
-                    return context;
-                })
+            List<Question> questions = gameBody.getQuestions().stream()
+                    .map(CreateQuestionRequestBody::toQuestion)
+                    .peek(q -> q.getRoot().setGame(game))
+                    .collect(Collectors.toList());
+
+            List<ConcreteQuestion> concretes = questions
+                .stream()
+                .map((question) -> question.getRoot())
                 .collect(Collectors.toList());
-            entity.setContexts(contextEntities);
-        }
+            
+            game.setQuestions(
+                concretes
+            );
 
-        Question decoratedPojo = questionFactory.createDecoratedQuestion(entity, questionBody);
+            Game newGame = gameRepository.save(game);
 
-        try {
-            String json = objectMapper.writeValueAsString(decoratedPojo);
-            entity.setDecoratorsJson(json);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Erro ao serializar decoradores para JSON", e);
+            questions.forEach((question) -> {
+                storage.save(question);
+            });
+
+            return newGame;
+        } else {
+            return gameRepository.save(game);
         }
-        
-        questionsForGame.add(entity);
     }
 
-    game.setQuestions(questionsForGame);
-
-    return gameRepository.saveAndFlush(game);
-}
 };

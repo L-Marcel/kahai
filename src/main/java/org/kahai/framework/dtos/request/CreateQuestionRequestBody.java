@@ -2,17 +2,20 @@ package org.kahai.framework.dtos.request;
 
 import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.kahai.framework.models.questions.Question;
 
-@Getter
-@Setter
-public class CreateQuestionRequestBody {
-    private String question;
-    private List<AnswerRequestBody> answers;  
-    private String answer; 
-      private String questionType;
-    private List<String> context;
-    private String feedback;  private List<String> options;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CreateConcreteQuestionRequestBody.class, name = "CreateConcreteQuestionRequestBody"),
+})
+public interface CreateQuestionRequestBody {
+
+    Question toQuestion();
 }

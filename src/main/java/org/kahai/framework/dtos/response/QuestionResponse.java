@@ -18,7 +18,6 @@ public class QuestionResponse {
     private String question;
     private List<String> contexts;
     private List<AnswerResponse> answers;
-    private String decoratorsJson;
     private String formattedPrompt; 
 
     public QuestionResponse(Question question) {
@@ -27,7 +26,6 @@ public class QuestionResponse {
 
         this.uuid = root.getUuid();
         this.question = root.getQuestion();
-        this.decoratorsJson = root.getDecoratorsJson();
         
         if (root.getContexts() != null) {
             this.contexts = root.getContexts().stream()
@@ -41,6 +39,6 @@ public class QuestionResponse {
                                  .collect(Collectors.toList());
         }
 
-        this.formattedPrompt = question.getPromptFormat();
+        // this.formattedPrompt = question.getPromptFormat();
     }
 }

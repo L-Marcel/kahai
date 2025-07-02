@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 import org.kahai.framework.models.questions.ConcreteQuestion;
+import org.kahai.framework.models.questions.Question;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -33,10 +35,43 @@ public class Game {
     private String title;
 
     @ManyToOne
-    @JoinColumn(name = "owner", nullable = false)  
+    @JoinColumn(name = "owner", nullable = false)
+    @JsonIgnore
     private User owner;
 
-    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)@JsonManagedReference 
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference 
    private List<ConcreteQuestion> questions = new ArrayList<>();
 
+    public UUID getUuid() {
+        return this.uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public User getOwner() {
+        return this.owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public List<ConcreteQuestion> getQuestions() {
+        return this.questions;
+    }
+
+    public void setQuestions(List<ConcreteQuestion> questions) {
+        this.questions = questions;
+    }
 };

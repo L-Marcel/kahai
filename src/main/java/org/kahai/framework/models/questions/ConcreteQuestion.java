@@ -43,14 +43,14 @@ import jakarta.persistence.Transient;
 public class ConcreteQuestion implements Question {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid; //
+    private UUID uuid; 
 
     @ManyToOne
     @JoinColumn(name = "game_id", nullable = false)@JsonBackReference
-    private Game game; //
+    private Game game; 
 
     @Column(nullable = false, length = 600)
-    private String question; //
+    private String question; 
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)  @JsonManagedReference
     private List<Answer> answers = new ArrayList<>(); 

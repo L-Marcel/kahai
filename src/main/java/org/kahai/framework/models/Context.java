@@ -2,6 +2,10 @@ package org.kahai.framework.models;
 
 import java.util.UUID;
 
+import org.kahai.framework.models.questions.ConcreteQuestion;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,7 +33,8 @@ public final class Context {
 
     @ManyToOne
     @JoinColumn(name = "question", nullable = false)
-    private Question question;
+@JsonBackReference
+    private ConcreteQuestion question;
 
     public Context(String name) {
         this.name = name;

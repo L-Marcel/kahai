@@ -16,8 +16,9 @@ import org.kahai.framework.errors.QuestionNotFound;
 import org.kahai.framework.errors.VariantsDistributionStrategyNotDefined;
 import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.models.Game;
-import org.kahai.framework.models.Question;
-import org.kahai.framework.repositories.QuestionRepository;
+import org.kahai.framework.models.questions.ConcreteQuestion;
+import org.kahai.framework.models.questions.Question;
+import org.kahai.framework.repositories.ConcreteQuestionRepository;
 import org.kahai.framework.services.queue.QuestionVariantsRequest;
 import org.kahai.framework.services.strategies.VariantsDistributionStrategy;
 import org.kahai.framework.transients.Participant;
@@ -28,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.Getter;
 
 @Service
@@ -35,14 +38,14 @@ public final class QuestionService {
     private static final Logger log = LoggerFactory.getLogger(QuestionService.class);
 
     @Autowired
-    private QuestionRepository questionRepository;
+    private ConcreteQuestionRepository questionRepository;
 
     @Autowired
     private RoomEventPublisher roomEventPublisher;
 
     @Autowired
     private AgentGenAI pedagogicalAgent;
-    
+    @Autowired private ObjectMapper objectMapper;
     @Getter
     private VariantsDistributionStrategy distributionStrategy;
 
@@ -54,9 +57,11 @@ public final class QuestionService {
     private Set<String> generatingRooms = ConcurrentHashMap.newKeySet();
   
     public List<Question> findQuestionsByGame(Game game) {
-        return this.questionRepository.findAllByGame(game);
-    };
-
+        List<ConcreteQuestion> concreteQuestions = this.questionRepository.findAllByGame(game);
+        return concreteQuestions.stream()
+                .map(question -> (Question) question) 
+                .collect(Collectors.toList());
+    }
     public Question findQuestionById(UUID uuid) throws QuestionNotFound {
         return this.questionRepository.findByUuid(uuid)
             .orElseThrow(QuestionNotFound::new);
@@ -64,7 +69,7 @@ public final class QuestionService {
 
     public void startVariantsGeneration(Question question, Room room) {
         this.startVariantsGeneration(question, room, (variants) -> {
-            log.info("Variantes da pergunta ({}) geradas!", question.getUuid());
+            log.info("Variantes da pergunta ({}) geradas!", question.getRoot().getUuid());
             this.roomEventPublisher.emitVariantsGenerated(room, variants);
         });
     };

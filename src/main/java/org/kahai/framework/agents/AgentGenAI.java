@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.kahai.framework.events.RoomEventPublisher;
-import org.kahai.framework.models.Question;
+import org.kahai.framework.models.questions.Question;
 import org.kahai.framework.transients.QuestionVariant;
 import org.kahai.framework.transients.Room;
 import org.slf4j.Logger;

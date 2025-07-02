@@ -9,6 +9,10 @@ import lombok.Setter;
 @Setter
 public class CreateQuestionRequestBody {
     private String question;
-    private String answer;
+    private List<AnswerRequestBody> answers;  
+    private String answer; 
+      private String questionType;
     private List<String> context;
-};
+    private String feedback;  private List<String> options;
+
+}

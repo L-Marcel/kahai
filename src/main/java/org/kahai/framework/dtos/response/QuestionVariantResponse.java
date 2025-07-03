@@ -9,6 +9,7 @@ import org.kahai.framework.models.Context;
 import org.kahai.framework.models.Difficulty;
 import org.kahai.framework.transients.QuestionVariant;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class QuestionVariantResponse {
     private UUID uuid;
     private String question;
@@ -25,20 +27,21 @@ public class QuestionVariantResponse {
     private UUID original;
     private List<String> answers;
 
-    public QuestionVariantResponse(QuestionVariant question, boolean hasAnswer) {
+    public QuestionVariantResponse(QuestionVariant question, Boolean hasAnswer) {
         this.uuid = question.getUuid();
         this.question = question.getQuestion();
         this.difficulty = question.getDifficulty();
         this.options = question.getOptions();
-        this.original = question.getOriginal().getUuid();
+        this.original = question.getOriginal().getRoot().getUuid();
         this.context = question.getOriginal()
+            .getRoot()
             .getContexts()
             .stream()
             .map(Context::getName)
             .collect(Collectors.toList());
 
         if(hasAnswer) {
-            this.answers = question.getOriginal().getAnswers()
+            this.answers = question.getOriginal().getRoot().getAnswers()
                 .stream()
                 .map(Answer::getAnswer)
                 .collect(Collectors.toList());

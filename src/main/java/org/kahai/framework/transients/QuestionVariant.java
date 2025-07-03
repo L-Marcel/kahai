@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.kahai.framework.models.Difficulty;
-import org.kahai.framework.models.Question;
+import org.kahai.framework.models.questions.Question;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

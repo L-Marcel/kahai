@@ -16,9 +16,9 @@ public final class Participant {
     private String nickname;
     private Difficulty currentDifficulty = Difficulty.NORMAL;
     
-    private int correctAnswers = 0;
-    private int wrongAnswers = 0;
-    private int score = 0;
+    private Integer correctAnswers = 0;
+    private Integer wrongAnswers = 0;
+    private Integer score = 0;
 
     public Participant(String nickname, Room room) {
         this.nickname = nickname;
@@ -60,7 +60,7 @@ public final class Participant {
         Boolean isCorrect
     ) {
         Difficulty[] difficulties = Difficulty.values();
-        int index = currentDifficulty.ordinal();
+        Integer index = currentDifficulty.ordinal();
 
         if(isCorrect && index < difficulties.length - 1) {
             return currentDifficulty = difficulties[index + 1];

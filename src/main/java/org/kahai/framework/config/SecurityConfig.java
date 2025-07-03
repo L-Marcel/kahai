@@ -27,11 +27,11 @@ public class SecurityConfig {
     private JwtAuthFilter jwtAuthFilter;
 
     private final List<String> allowedOrigins;
-    private final boolean allowCredentials;
+    private final Boolean allowCredentials;
 
     public SecurityConfig(KahaiProperties properties) {
         this.allowedOrigins = List.of(properties.getCors().getAllowedOrigins());
-        this.allowCredentials = properties.getCors().isAllowCredentials();
+        this.allowCredentials = properties.getCors().getAllowCredentials();
     };
 
     @Bean

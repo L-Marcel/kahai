@@ -2,6 +2,9 @@ package org.kahai.framework.models;
 
 import java.util.UUID;
 
+import org.kahai.framework.models.questions.ConcreteQuestion;
+import org.kahai.framework.models.questions.Question;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,7 +36,7 @@ public class ParticipantAnswer {
 
     @ManyToOne
     @JoinColumn(name = "question", nullable = false)
-    private Question question;
+    private ConcreteQuestion question;
 
     @Column(nullable = false)
     private String nickname; 
@@ -56,7 +59,7 @@ public class ParticipantAnswer {
         this.session = session;
         this.game = game;
         this.owner = owner;
-        this.question = question;
+        this.question = question.getRoot();
         this.nickname = nickname;
         this.answer = answer.getAnswer();
     };

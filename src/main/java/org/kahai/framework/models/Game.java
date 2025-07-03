@@ -29,7 +29,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "games")
-public class Game {
+public class Game implements GamePrototype{
     @Id
     @GeneratedValue
     private UUID uuid;
@@ -48,4 +48,9 @@ public class Game {
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParticipantAnswer> answers;
+
+    @Override
+    public void clone(User newOwner) {
+        new Game(this.uuid, this.title, newOwner, this.questions, this.answers);
+    }
 };

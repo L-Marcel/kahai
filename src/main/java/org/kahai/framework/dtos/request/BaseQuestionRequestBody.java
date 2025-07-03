@@ -52,7 +52,7 @@ public class BaseQuestionRequestBody implements QuestionRequestBody {
             concrete.setContexts(Collections.emptyList());
         };
 
-        concrete.setCorrectValue(0);
+        concrete.setCorrectValue(1);
         concrete.setWrongValue(0);
         return concrete;
     };

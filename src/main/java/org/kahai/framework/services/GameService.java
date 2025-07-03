@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.kahai.framework.dtos.request.CreateGameRequestBody;
 import org.kahai.framework.dtos.request.CreateQuestionRequestBody;
 import org.kahai.framework.errors.GameNotFound;
+import org.kahai.framework.models.Answer;
 import org.kahai.framework.models.Context;
 import org.kahai.framework.models.Game;
 import org.kahai.framework.models.Question;
@@ -48,7 +49,10 @@ public final class GameService {
             Question question = new Question();
             question.setGame(game);
             question.setQuestion(questionBody.getQuestion());
-            question.setAnswer(questionBody.getAnswer());
+
+            List<Answer> answers = Answer.fromList(questionBody.getAnswers());
+            question.setAnswers(answers);
+            answers.forEach((answer) -> answer.setQuestion(question));
 
             List<Context> contexts = new LinkedList<>();
             List<String> contextNames = questionBody.getContext();

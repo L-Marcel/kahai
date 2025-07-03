@@ -35,5 +35,5 @@ public class Game {
     private List<Question> questions;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ParticipantAnswer> gameAnswers;
+    private List<ParticipantAnswer> answers;
 };

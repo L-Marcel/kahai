@@ -118,18 +118,29 @@ public class AgentGenAI {
                     context.getName()
                 );
             }).collect(Collectors.joining("        ")).trim();
+        
+        String answers = question.getAnswers().stream()
+            .map((answer) -> {
+                return String.format(
+                    // language=xml
+                    """
+                    <answer>%s</answer>
+                    """, 
+                    answer.getAnswer()
+                );
+            }).collect(Collectors.joining("        ")).trim();
                 
         return String.format(
             // language=xml
             """
             <prompt>
                 <question>%s</question>
-                <answer>%s</answer>
+                <answers>%s</answers>
                 <contexts>%s</contexts>
             </prompt>
             """, 
             question.getQuestion(),
-            question.getAnswer(),
+            "        \n        " + answers + "\n    ",
             "        \n        " + contexts + "\n    "
         );
     };

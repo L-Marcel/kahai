@@ -32,8 +32,8 @@ public class Question {
     @Column(nullable = false, length = 600)
     private String question;
 
-    @Column(nullable = false, length = 200)
-    private String answer;
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Answer> answers;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Context> contexts;

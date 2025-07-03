@@ -1,6 +1,8 @@
 package org.kahai.framework.models;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,21 +13,36 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "answer")
+@NoArgsConstructor
 public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid; 
-
-    @ManyToOne
-    @JoinColumn(name = "participant_answer_uuid", nullable = false)
-    private ParticipantAnswer participantAnswer;
+    private UUID uuid;
 
     @Column(columnDefinition = "TEXT")
     private String answer;
-}
+
+    @ManyToOne
+    @JoinColumn(name = "question", nullable = false)
+    private Question question;
+
+    public Answer(String answer) {
+        this.answer = answer;
+    };
+
+    public static List<Answer> fromList(
+        List<String> answers
+    ) {
+        return answers
+            .stream()
+            .map(Answer::new)
+            .collect(Collectors.toList());
+    };
+};

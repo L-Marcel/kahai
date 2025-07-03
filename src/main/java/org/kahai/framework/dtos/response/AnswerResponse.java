@@ -13,5 +13,5 @@ public class AnswerResponse {
 
     public AnswerResponse(Answer answer) {
         this.answer = answer.getAnswer();
-    }
-}
+    };
+};

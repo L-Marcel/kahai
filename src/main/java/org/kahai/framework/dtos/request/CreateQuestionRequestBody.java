@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 public class CreateQuestionRequestBody {
     private String question;
-    private String answer;
+    private List<String> answers;
     private List<String> context;
 };

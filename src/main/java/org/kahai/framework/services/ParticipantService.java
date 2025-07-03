@@ -1,5 +1,6 @@
 package org.kahai.framework.services;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -117,10 +118,12 @@ public class ParticipantService {
     public void answerQuestion(
         Question question,
         Participant participant,
-        String answer
+        List<String> answers
     ) {
-        boolean isCorrect = question.getAnswer().equals(answer);
-
+        boolean isCorrect = question.getAnswers()
+            .contains(question.getAnswers().getFirst());
+        // TODO - Resolver isso aqui com o validate
+        
         synchronized(participant) {
             participant.setNetxDifficulty(isCorrect);
             

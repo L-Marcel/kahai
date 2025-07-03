@@ -8,7 +8,6 @@ import org.kahai.framework.models.Answer;
 import org.kahai.framework.models.Context;
 import org.kahai.framework.models.questions.ConcreteQuestion;
 import org.kahai.framework.models.questions.Question;
-import org.springframework.util.StringUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +20,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BaseQuestionRequestBody implements QuestionRequestBody {
     private String question;
-    private String answer;
+    private List<String> answers;
     private List<String> context;
 
     @Override
@@ -29,12 +28,14 @@ public class BaseQuestionRequestBody implements QuestionRequestBody {
         ConcreteQuestion concrete = new ConcreteQuestion();
         concrete.setQuestion(this.question);
 
-        if (StringUtils.hasText(this.answer)) {
-            Answer answerEntity = new Answer();
-            answerEntity.setQuestion(concrete);
-            answerEntity.setAnswer(this.answer);
-
-            concrete.setAnswers(List.of(answerEntity));
+        if (this.answers != null && !this.answers.isEmpty()) {
+            List<Answer> answerEntities = this.answers.stream().map(answerText -> {
+                Answer answer = new Answer();
+                answer.setQuestion(concrete);
+                answer.setAnswer(answerText);
+                return answer;
+            }).collect(Collectors.toList());
+            concrete.setAnswers(answerEntities);
         } else {
             concrete.setAnswers(Collections.emptyList());
         };

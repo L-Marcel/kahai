@@ -1,7 +1,6 @@
 package org.kahai.framework.services;
 
 import java.security.SecureRandom;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.kahai.framework.errors.GameNotFound;
 import org.kahai.framework.errors.ParticipantAlreadyInRoom;
@@ -34,16 +33,16 @@ public class RoomService {
     @Autowired
     private RoomEventPublisher roomEventPublisher;
 
-    private ScheduledThreadPoolExecutor scheduler;
+    //private ScheduledThreadPoolExecutor scheduler;
 
     @Getter
     private RoomEventStrategy roomEventStrategy;
 
-    public RoomService() {
-        this.scheduler = new ScheduledThreadPoolExecutor(10);
-    }
+    // public RoomService() {
+    //     this.scheduler = new ScheduledThreadPoolExecutor(10);
+    // };
 
-    public void setRoomStrategy (RoomEventStrategy strategy) {
+    public void setRoomEventStrategy(RoomEventStrategy strategy) {
         this.roomEventStrategy = strategy;
         log.info("Estratégia de gerenciamento de sala foi alterada!");
         this.roomEventStrategy.setRoomEventPublisher(roomEventPublisher);
@@ -110,7 +109,8 @@ public class RoomService {
     ) throws RoomNotFound, ParticipantAlreadyInRoom {
         if (roomEventStrategy == null) {
             throw new IllegalStateException("RoomEventStrategy não configurada no RoomService.");
-        }
+        };
+        
         roomEventStrategy.onClose(room);
         log.info("Sala ({}) fechada!", room.getCode());
         roomEventPublisher.emitRoomClosed(room);

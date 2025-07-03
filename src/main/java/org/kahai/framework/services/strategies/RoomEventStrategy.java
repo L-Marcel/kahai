@@ -8,7 +8,6 @@ public interface RoomEventStrategy {
     public void onClose(Room room);
     public void onStart(Room room);
     public void onDurationExceeded(Room room);
-    
     public void setRoomEventPublisher(RoomEventPublisher publisher);
     public void setRoomRepository(RoomRepository repository);
-}
+};

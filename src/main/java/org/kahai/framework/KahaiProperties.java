@@ -36,7 +36,7 @@ public class KahaiProperties {
         private String allowedOrigins;
 
         @Getter
-        private boolean allowCredentials = true;
+        private Boolean allowCredentials = true;
 
         public String[] getAllowedOrigins() {
             return KahaiUtils.stringToArray(this.allowedOrigins);
@@ -79,7 +79,7 @@ public class KahaiProperties {
 
         @Getter
         @PositiveOrZero
-        private float temperature = 0;
+        private Float temperature = 0f;
 
         @NotBlank
         private String keys;

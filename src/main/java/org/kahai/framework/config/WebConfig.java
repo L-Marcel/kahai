@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(
-        @SuppressWarnings("null") FormatterRegistry registry
+        FormatterRegistry registry
     ) {
         registry.addConverter(new StringToUuidConverter());
     };

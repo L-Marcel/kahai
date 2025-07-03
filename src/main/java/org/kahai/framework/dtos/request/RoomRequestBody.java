@@ -2,11 +2,15 @@ package org.kahai.framework.dtos.request;
 
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CreateRoomRequestBody {
+@NoArgsConstructor
+@AllArgsConstructor
+public class RoomRequestBody {
     private UUID game;
 };

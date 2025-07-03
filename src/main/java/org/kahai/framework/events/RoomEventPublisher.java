@@ -24,76 +24,63 @@ public final class RoomEventPublisher {
     public void emitRoomUpdated(Room room) {
         log.info("Evento (room-updated) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + "/updated", 
-            new RoomResponse(room)
-        );
+                "/channel/events/rooms/" + room.getCode() + "/updated",
+                new RoomResponse(room));
     };
 
     public void emitRoomClosed(Room room) {
         log.info("Evento (room-closed) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + "/closed",
-            "Sala fechada!"
-        );
+                "/channel/events/rooms/" + room.getCode() + "/closed",
+                "Sala fechada!");
     };
 
     public void emitVariantsGenerated(
-        Room room, 
-        List<QuestionVariant> variants
-    ) {
+            Room room,
+            List<QuestionVariant> variants) {
         log.info("Evento (variants-generated) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + 
-            "/" + room.getGame().getOwner().getUuid().toString() + 
-            "/variants",
-            variants.stream().map(
-                (variant) -> new QuestionVariantResponse(
-                    variant, 
-                    true
-                )
-            )
-        );
+                "/channel/events/rooms/" + room.getCode() +
+                        "/" + room.getGame().getOwner().getUuid().toString() +
+                        "/variants",
+                variants.stream().map(
+                        (variant) -> new QuestionVariantResponse(
+                                variant,
+                                true))
+                        .collect(Collectors.toList()));
     };
 
     public void emitVariantIntended(
-        Room room, 
-        UUID participant, 
-        QuestionVariant variant
-    ) {
+            Room room,
+            UUID participant,
+            QuestionVariant variant) {
         log.info("Evento (variant-intended) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + 
-            "/participants/" + participant + "/question",
-            new QuestionVariantResponse(
-                variant, 
-                false
-            )
-        );
+                "/channel/events/rooms/" + room.getCode() +
+                        "/participants/" + participant + "/question",
+                new QuestionVariantResponse(
+                        variant,
+                        false));
     };
 
     public void emitVariantsIntended(
-        Room room, 
-        UUID participant, 
-        List<QuestionVariant> variants
-    ) {
+            Room room,
+            UUID participant,
+            List<QuestionVariant> variants) {
         log.info("Evento (variants-intended) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + 
-            "/participants/" + participant + "/question",
-            variants.stream().map((variant) -> new QuestionVariantResponse(
-                variant, 
-                false
-            )).collect(Collectors.toList())
-        );
+                "/channel/events/rooms/" + room.getCode() +
+                        "/participants/" + participant + "/question",
+                variants.stream().map((variant) -> new QuestionVariantResponse(
+                        variant,
+                        false)).collect(Collectors.toList()));
     };
-    
+
     public void emitGenerationStatus(
-        Room room, 
-        String status
-    ) {
+            Room room,
+            String status) {
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + "/status",
-            status
-        );
+                "/channel/events/rooms/" + room.getCode() + "/status",
+                status);
     };
 };

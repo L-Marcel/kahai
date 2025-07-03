@@ -16,8 +16,9 @@ import org.kahai.framework.errors.QuestionNotFound;
 import org.kahai.framework.errors.VariantsDistributionStrategyNotDefined;
 import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.models.Game;
-import org.kahai.framework.models.Question;
-import org.kahai.framework.repositories.QuestionRepository;
+import org.kahai.framework.models.questions.ConcreteQuestion;
+import org.kahai.framework.models.questions.Question;
+import org.kahai.framework.repositories.ConcreteQuestionRepository;
 import org.kahai.framework.services.queue.QuestionVariantsRequest;
 import org.kahai.framework.services.strategies.VariantsDistributionStrategy;
 import org.kahai.framework.transients.Participant;
@@ -35,14 +36,14 @@ public final class QuestionService {
     private static final Logger log = LoggerFactory.getLogger(QuestionService.class);
 
     @Autowired
-    private QuestionRepository questionRepository;
+    private ConcreteQuestionRepository questionRepository;
 
     @Autowired
     private RoomEventPublisher roomEventPublisher;
 
     @Autowired
     private AgentGenAI pedagogicalAgent;
-    
+
     @Getter
     private VariantsDistributionStrategy distributionStrategy;
 
@@ -54,9 +55,11 @@ public final class QuestionService {
     private Set<String> generatingRooms = ConcurrentHashMap.newKeySet();
   
     public List<Question> findQuestionsByGame(Game game) {
-        return this.questionRepository.findAllByGame(game);
-    };
-
+        List<ConcreteQuestion> concreteQuestions = this.questionRepository.findAllByGame(game);
+        return concreteQuestions.stream()
+                .map(question -> (Question) question) 
+                .collect(Collectors.toList());
+    }
     public Question findQuestionById(UUID uuid) throws QuestionNotFound {
         return this.questionRepository.findByUuid(uuid)
             .orElseThrow(QuestionNotFound::new);
@@ -64,7 +67,7 @@ public final class QuestionService {
 
     public void startVariantsGeneration(Question question, Room room) {
         this.startVariantsGeneration(question, room, (variants) -> {
-            log.info("Variantes da pergunta ({}) geradas!", question.getUuid());
+            log.info("Variantes da pergunta ({}) geradas!", question.getRoot().getUuid());
             this.roomEventPublisher.emitVariantsGenerated(room, variants);
         });
     };
@@ -74,7 +77,7 @@ public final class QuestionService {
         Room room, 
         AgentGenAICallback callback
     ) {
-        log.info("Iniciando geração das variantes da pergunta ({})!", question.getUuid());
+        log.info("Iniciando geração das variantes da pergunta ({})!", question.getRoot().getUuid());
         this.pedagogicalAgent.generateRoomQuestionsVariants(
             question, 
             room, 
@@ -136,7 +139,7 @@ public final class QuestionService {
         Question original = this.findQuestionById(originalUuid);
 
         synchronized(participants) {
-            log.info("Selecionando e enviando variante da pergunta ({})!", original.getUuid());
+            log.info("Selecionando e enviando variante da pergunta ({})!", original.getRoot().getUuid());
             for (Participant participant : participants) {
                 Optional<QuestionVariant> selected = this.distributionStrategy.selectVariant(
                     participant, 

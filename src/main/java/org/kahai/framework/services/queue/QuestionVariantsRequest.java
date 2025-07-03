@@ -4,7 +4,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.kahai.framework.models.Question;
+import org.kahai.framework.models.questions.Question;
 import org.kahai.framework.transients.QuestionVariant;
 import org.kahai.framework.transients.Room;
 

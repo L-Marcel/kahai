@@ -6,11 +6,15 @@ import java.util.stream.Collectors;
 
 import org.kahai.framework.models.Game;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GameResponse {
     private UUID uuid;
     private UUID owner;
@@ -21,10 +25,14 @@ public class GameResponse {
         this.uuid = game.getUuid();
         this.owner = game.getOwner().getUuid();
         this.title = game.getTitle();
-        this.questions = game.getQuestions()
-            .stream()
-            .map(QuestionResponse::new)
-            .collect(Collectors.toList());
+        if (game.getQuestions() != null) { 
+            this.questions = game.getQuestions()
+                .stream()
+                .map(QuestionResponse::new) 
+                .collect(Collectors.toList());
+        } else {
+            this.questions = List.of();
+        };
     };
 
     public static List<GameResponse> mapFromList(List<Game> games) {

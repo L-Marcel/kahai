@@ -59,11 +59,11 @@ public class RoomRepository {
         });
     };
 
-    public boolean existsByCode(String code) {
+    public Boolean existsByCode(String code) {
         return this.findByCode(code).isPresent();
     };
 
-    public boolean existsByUser(User user) {
+    public Boolean existsByUser(User user) {
         return this.findByUser(user).isPresent();
     };
 };

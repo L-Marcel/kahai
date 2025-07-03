@@ -1,7 +1,9 @@
 package org.kahai.framework.models.questions;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.kahai.framework.annotations.QuestionType;
 import org.kahai.framework.models.Answer;
@@ -28,25 +30,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// TODO - SUGESTÃO TOP, ao invés de passar o name dentro do @QuestionType
-// Que tal passar... nada? Dá para pegar o nome do Class assim oh
-// ConcreteQuestion.class.getName()
-// Então acho que dá para fazer @QuestionType sem name
-// ou, no máximo, @QuestionType(ConcreteQuestion.class)
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "questions")
-@QuestionType("concrete")
+@QuestionType
 public class ConcreteQuestion implements Question {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID uuid;
 
-    @ManyToOne(fetch = FetchType.LAZY) 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
     @JsonBackReference
     private Game game;
@@ -70,14 +66,53 @@ public class ConcreteQuestion implements Question {
 
     @Override
     public String getPromptFormat() {
-        return question;
-    };
+
+        return """
+                [
+                    {
+                        "difficulty": "EASY",
+                        "question": "...",
+                        "options": [
+                            "...",
+                            "...",
+                            "..."
+                        ]
+                    },
+                    {
+                        "difficulty": "NORMAL",
+                        "question": "...",
+                        "options": [
+                            "...",
+                            "...",
+                            "...",
+                            "..."
+                        ]
+                    },
+                    {
+                        "difficulty": "HARD",
+                        "question": "...",
+                        "options": [
+                            "...",
+                            "...",
+                            "...",
+                            "...",
+                            "...",
+                            "..."
+                        ]
+                    }
+                ]
+                """;
+    }
 
     @Override
-    public List<Boolean> validate(List<String> answers) {
-        // TODO - Implementar esse método de verdade
-        return List.of(true); 
-    };
+    public List<Boolean> validate(List<String> userAnswers) {
+        Set<String> correctAnswersSet = this.answers.stream()
+                .map(Answer::getText)
+                .collect(Collectors.toSet());
+        return userAnswers.stream()
+                .map(correctAnswersSet::contains)
+                .collect(Collectors.toList());
+    }
 
     @Override
     @JsonIgnore

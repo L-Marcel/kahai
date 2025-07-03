@@ -29,6 +29,11 @@ public class AgentGenAI {
     @Autowired
     private ObjectMapper objectMapper;
 
+    // TODO - Aqui o question que deve fornecer o getPromptFormat()
+    // para dentro do SYSTEM_PROMPT, no momento que dá o exemplo de saída,
+    // assim o agente sabe qual o formato JSON de saída, sacou?
+    // Essa parte é difícil....
+
     // language=xml
     private final String SYSTEM_PROMPT = """
         <system>
@@ -108,7 +113,7 @@ public class AgentGenAI {
     """;
 
     private String buildPrompt(Question question) {
-        String contexts = question.getContexts().stream()
+        String contexts = question.getRoot().getContexts().stream()
             .map((context) -> {
                 return String.format(
                     // language=xml
@@ -128,8 +133,8 @@ public class AgentGenAI {
                 <contexts>%s</contexts>
             </prompt>
             """, 
-            question.getQuestion(),
-            question.getAnswer(),
+            question.getRoot().getQuestion(),
+            question.getRoot().getAnswers().getFirst(),
             "        \n        " + contexts + "\n    "
         );
     };
@@ -188,7 +193,7 @@ public class AgentGenAI {
                         );
                     }
                 }, () -> {
-                    log.error("Falha ao gerar variações da pergunta ({})!", question.getUuid());
+                    log.error("Falha ao gerar variações da pergunta ({})!", question.getRoot().getUuid());
                     publisher.emitGenerationStatus(
                         room, 
                         "Falha ao gerar variações"

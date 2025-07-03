@@ -22,7 +22,7 @@ public class GenAIImpl implements GenAI {
     private static final Logger log = LoggerFactory.getLogger(GenAI.class);
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-    private final float temperature;
+    private final Float temperature;
     private final String model;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;

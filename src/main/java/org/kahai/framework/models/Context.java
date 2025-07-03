@@ -14,12 +14,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "contexts")
@@ -33,7 +35,7 @@ public final class Context {
 
     @ManyToOne
     @JoinColumn(name = "question", nullable = false)
-@JsonBackReference
+    @JsonBackReference
     private ConcreteQuestion question;
 
     public Context(String name) {

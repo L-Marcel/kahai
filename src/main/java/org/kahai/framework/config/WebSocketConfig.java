@@ -26,7 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(
-        @SuppressWarnings("null") StompEndpointRegistry registry
+        StompEndpointRegistry registry
     ) {
         registry
             .addEndpoint(this.endpoint)  
@@ -35,7 +35,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(
-        @SuppressWarnings("null") MessageBrokerRegistry registry
+        MessageBrokerRegistry registry
     ) {
         registry.enableSimpleBroker(this.simpleBroker);
         registry.setApplicationDestinationPrefixes(this.applicationDestinationPrefixes);

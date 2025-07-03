@@ -9,7 +9,7 @@ import lombok.Getter;
 public class AIKeySource implements KeySource {
     @Getter
     private final String[] keys;
-    private int currentKey = -1;
+    private Integer currentKey = -1;
 
     public AIKeySource(KahaiProperties properties) {
         this.keys = properties.getAi().getKeys();

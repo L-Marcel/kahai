@@ -29,8 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.Getter;
 
 @Service
@@ -45,7 +43,7 @@ public final class QuestionService {
 
     @Autowired
     private AgentGenAI pedagogicalAgent;
-    @Autowired private ObjectMapper objectMapper;
+
     @Getter
     private VariantsDistributionStrategy distributionStrategy;
 
@@ -79,7 +77,7 @@ public final class QuestionService {
         Room room, 
         AgentGenAICallback callback
     ) {
-        log.info("Iniciando geração das variantes da pergunta ({})!", question.getUuid());
+        log.info("Iniciando geração das variantes da pergunta ({})!", question.getRoot().getUuid());
         this.pedagogicalAgent.generateRoomQuestionsVariants(
             question, 
             room, 
@@ -141,7 +139,7 @@ public final class QuestionService {
         Question original = this.findQuestionById(originalUuid);
 
         synchronized(participants) {
-            log.info("Selecionando e enviando variante da pergunta ({})!", original.getUuid());
+            log.info("Selecionando e enviando variante da pergunta ({})!", original.getRoot().getUuid());
             for (Participant participant : participants) {
                 Optional<QuestionVariant> selected = this.distributionStrategy.selectVariant(
                     participant, 

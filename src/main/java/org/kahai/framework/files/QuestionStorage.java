@@ -6,20 +6,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.kahai.framework.errors.FileError;
-import org.kahai.framework.errors.HttpError;
-import org.springframework.web.client.HttpServerErrorException.InternalServerError;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
 import org.kahai.framework.models.questions.Question;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class QuestionStorage {
-    public Path getStorageFolder() throws FileError {
+    private static final Logger log = LoggerFactory.getLogger(QuestionStorage.class);
+
+    protected Path getStorageFolder() throws FileError {
         try {
             Path path = Paths.get("").toAbsolutePath();
 
@@ -34,10 +35,17 @@ public class QuestionStorage {
         }
     };
 
-    public String makeFilename(
+    protected String getFilename(
         UUID uuid
     ) {
         return uuid + ".json";
+    };
+
+    protected Path getPath(
+        UUID uuid
+    ) {
+        Path path = this.getStorageFolder();
+        return path.resolve(this.getFilename(uuid));
     };
 
     public void delete(
@@ -45,8 +53,10 @@ public class QuestionStorage {
         Path path
     ) throws FileError {
         try {
-            Path filePath = path.resolve(this.makeFilename(uuid));
-            Files.deleteIfExists(filePath);
+            Files.deleteIfExists(
+                this.getPath(uuid)
+            );
+            log.info("Questão ({}) deletada!", uuid);
         } catch (Exception e) {
             throw new FileError();
         }
@@ -56,16 +66,29 @@ public class QuestionStorage {
         Question question
     ) throws FileError {
         try {
-            Path destiny = this.getStorageFolder();
-            String filename = this.makeFilename(question.getRoot().getUuid());
-            try (FileOutputStream outputStream = new FileOutputStream(destiny.resolve(filename).toFile())) {
+            UUID uuid = question.getRoot().getUuid();
+            Path path = this.getPath(uuid);
+            try (FileOutputStream outputStream = new FileOutputStream(path.toFile())) {
                 ObjectMapper mapper = new ObjectMapper();
                 String json = mapper.writeValueAsString(question);
                 outputStream.write(json.getBytes());
             };
+            log.info("Questão ({}) salva!",uuid);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             throw new FileError();
         };
+    };
+
+    public Question load(UUID uuid) {
+        try {
+            //Path path = this.getPath(uuid);
+            
+            // TODO - Carregar o JSON da questão e converter para Question
+            // e... claro, fazer usso desse método depois
+            throw new FileError();
+            //log.info("Questão ({}) carregada!",uuid);
+        } catch (Exception e) {
+            throw new FileError();
+        }
     };
 };

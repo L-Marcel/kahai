@@ -8,7 +8,6 @@ import org.kahai.framework.errors.ParticipantAlreadyInRoom;
 import org.kahai.framework.errors.ParticipantNotFound;
 import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.models.User;
-import org.kahai.framework.models.questions.ConcreteQuestion;
 import org.kahai.framework.models.questions.Question;
 import org.kahai.framework.repositories.ParticipantRepository;
 import org.kahai.framework.transients.Participant;
@@ -28,16 +27,16 @@ public class ParticipantService {
     @Autowired
     private RoomEventPublisher roomEventPublisher;
 
-    private boolean isParticipantAlreadyInRoom(
+    private Boolean isParticipantAlreadyInRoom(
         Room room, 
         Participant candidate
     ) {
         for(Participant participant : room.getParticipants()) {
             String nickname = participant.getNickname().toUpperCase();
             String candidateNickname = candidate.getNickname().toUpperCase();
-            boolean nicknameAlreadyInUse = nickname.equals(candidateNickname);
-            boolean idAlreadyInUse = participant.getUuid().equals(candidate.getUuid());
-            boolean userAlreadyInUse = false;
+            Boolean nicknameAlreadyInUse = nickname.equals(candidateNickname);
+            Boolean idAlreadyInUse = participant.getUuid().equals(candidate.getUuid());
+            Boolean userAlreadyInUse = false;
             Optional<User> user = participant.getUser();
             Optional<User> candidateUser = candidate.getUser();
             if(user.isPresent() && candidateUser.isPresent()) {
@@ -65,7 +64,7 @@ public class ParticipantService {
         else participant = new Participant(nickname, room);
 
         synchronized(room.getParticipants()) {
-            boolean alreadyInRoom = this.isParticipantAlreadyInRoom(room, participant);
+            Boolean alreadyInRoom = this.isParticipantAlreadyInRoom(room, participant);
             if(alreadyInRoom) throw new ParticipantAlreadyInRoom();
 
             this.repository.add(participant);
@@ -111,7 +110,10 @@ public class ParticipantService {
             this.repository.remove(participant);
         };
 
-        log.info("Participante ({}) removido da sala ({})!");
+        log.info("Participante ({}) removido da sala ({})!", 
+            participant.getUuid(), 
+            participant.getRoom().getCode()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     };
 
@@ -120,7 +122,14 @@ public class ParticipantService {
         Participant participant,
         String answer
     ) {
-        boolean isCorrect = question.getRoot().getAnswers().equals(answer);
+        Boolean isCorrect = question.getRoot().getAnswers()
+            .getFirst()
+            .equals(answer);
+
+        // TODO - Esse equals vai falhar, pq é uma comparação
+        // de Answer com String. E mesmo que fosse Answer com
+        // Answer, talvez ainda desse errado pq é comparação de objetos
+        // deve ter um método para implementar de comparação
 
         synchronized(participant) {
             participant.setNetxDifficulty(isCorrect);

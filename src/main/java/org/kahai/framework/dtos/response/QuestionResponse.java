@@ -8,12 +8,16 @@ import org.kahai.framework.models.Context;
 import org.kahai.framework.models.questions.Question;
 import org.kahai.framework.models.questions.ConcreteQuestion;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class QuestionResponse {
-
     private UUID uuid;
     private String question;
     private List<String> contexts;
@@ -21,7 +25,6 @@ public class QuestionResponse {
     private String formattedPrompt; 
 
     public QuestionResponse(Question question) {
-        
         ConcreteQuestion root = question.getRoot();
 
         this.uuid = root.getUuid();
@@ -29,16 +32,14 @@ public class QuestionResponse {
         
         if (root.getContexts() != null) {
             this.contexts = root.getContexts().stream()
-                                  .map(Context::getName) 
-                                  .collect(Collectors.toList()); 
-        }
+                .map(Context::getName) 
+                .collect(Collectors.toList()); 
+        };
         
         if (root.getAnswers() != null) {
             this.answers = root.getAnswers().stream()
-                                 .map(AnswerResponse::new)
-                                 .collect(Collectors.toList());
-        }
-
-        // this.formattedPrompt = question.getPromptFormat();
-    }
-}
+                .map(AnswerResponse::new)
+                .collect(Collectors.toList());
+        };
+    };
+};

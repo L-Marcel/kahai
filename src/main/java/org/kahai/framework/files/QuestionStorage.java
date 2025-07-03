@@ -25,7 +25,11 @@ public class QuestionStorage {
     private static final Logger log = LoggerFactory.getLogger(QuestionStorage.class);
 
     @Autowired
+<<<<<<< Updated upstream
     private ObjectMapper objectMapper;
+=======
+    ObjectMapper objectMapper;
+>>>>>>> Stashed changes
 
     protected Path getStorageFolder() throws FileError {
         try {

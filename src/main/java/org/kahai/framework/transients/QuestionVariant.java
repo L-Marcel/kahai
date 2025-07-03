@@ -18,6 +18,8 @@ public final class QuestionVariant {
     private String question;
     private Difficulty difficulty = Difficulty.NORMAL;
     private List<String> options;
+    private List<String> answers;
+    private List<String> context;
     private Question original;
 
     public QuestionVariant() {

@@ -38,10 +38,9 @@ public class Answer {
     private String answer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
+    @JoinColumn(name = "question")
     @JsonBackReference
     private ConcreteQuestion question;
-    
 
     public Answer(String answer) {
         this.answer = answer;

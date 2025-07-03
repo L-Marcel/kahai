@@ -43,7 +43,7 @@ public class ConcreteQuestion implements Question {
     private UUID uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
+    @JoinColumn(name = "game")
     @JsonBackReference
     private Game game;
 

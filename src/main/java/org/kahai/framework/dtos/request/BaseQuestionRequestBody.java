@@ -32,12 +32,13 @@ public class BaseQuestionRequestBody implements QuestionRequestBody {
         if (StringUtils.hasText(this.answer)) {
             Answer answerEntity = new Answer();
             answerEntity.setQuestion(concrete);
-            answerEntity.setText(this.answer);
+            answerEntity.setAnswer(this.answer);
 
             concrete.setAnswers(List.of(answerEntity));
         } else {
             concrete.setAnswers(Collections.emptyList());
-        }
+        };
+
         if (this.context != null && !this.context.isEmpty()) {
             List<Context> contextEntities = this.context.stream().map(contextText -> {
                 Context ctx = new Context();
@@ -48,10 +49,10 @@ public class BaseQuestionRequestBody implements QuestionRequestBody {
             concrete.setContexts(contextEntities);
         } else {
             concrete.setContexts(Collections.emptyList());
-        }
+        };
 
         concrete.setCorrectValue(0);
         concrete.setWrongValue(0);
         return concrete;
-    }
-}
+    };
+};

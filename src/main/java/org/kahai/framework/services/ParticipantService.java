@@ -29,8 +29,9 @@ public class ParticipantService {
     private RoomEventPublisher roomEventPublisher;
 
     private Boolean isParticipantAlreadyInRoom(
-            Room room,
-            Participant candidate) {
+        Room room,
+        Participant candidate
+    ) {
         for (Participant participant : room.getParticipants()) {
             String nickname = participant.getNickname().toUpperCase();
             String candidateNickname = candidate.getNickname().toUpperCase();
@@ -41,22 +42,22 @@ public class ParticipantService {
             Optional<User> candidateUser = candidate.getUser();
             if (user.isPresent() && candidateUser.isPresent()) {
                 userAlreadyInUse = user.get().getEmail().equals(
-                        candidateUser.get().getEmail());
-            }
-            ;
+                    candidateUser.get().getEmail()
+                );
+            };
 
             if (nicknameAlreadyInUse || idAlreadyInUse || userAlreadyInUse)
                 return true;
-        }
-        ;
+        };
 
         return false;
     };
 
     public Participant createParticipant(
-            JoinRoomRequestBody body,
-            Room room,
-            User user) throws ParticipantAlreadyInRoom {
+        JoinRoomRequestBody body,
+        Room room,
+        User user
+    ) throws ParticipantAlreadyInRoom {
         String nickname = body.getNickname();
         Participant participant;
 
@@ -72,26 +73,29 @@ public class ParticipantService {
 
             this.repository.add(participant);
             room.getParticipants().add(participant);
-        }
+        };
 
         log.info("Novo participante ({}) adicionado na sala ({})!",
-                participant.getUuid(),
-                room.getCode());
+            participant.getUuid(),
+            room.getCode()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
 
         return participant;
     };
 
     public Participant findParticipantByUser(
-            User user) throws ParticipantNotFound {
+        User user
+    ) throws ParticipantNotFound {
         return this.repository.findByUser(user)
-                .orElseThrow(ParticipantNotFound::new);
+            .orElseThrow(ParticipantNotFound::new);
     };
 
     public Participant findParticipantByUuid(
-            UUID uuid) throws ParticipantNotFound {
+        UUID uuid
+    ) throws ParticipantNotFound {
         return this.repository.findByUuid(uuid)
-                .orElseThrow(ParticipantNotFound::new);
+            .orElseThrow(ParticipantNotFound::new);
     };
 
     public void removeAllByRoom(Room room) {
@@ -99,32 +103,31 @@ public class ParticipantService {
             for (Participant participant : room.getParticipants()) {
                 participant.getRoom().getParticipants().remove(participant);
                 this.repository.remove(participant);
-            }
-            ;
+            };
             log.info("Participantes da sala ({}) removidos!", room.getCode());
-        }
-        ;
+        };
     };
 
     public void removeParticipant(Participant participant) {
         synchronized (participant.getRoom().getParticipants()) {
             participant.getRoom().getParticipants().remove(participant);
             this.repository.remove(participant);
-        }
-        ;
+        };
 
         log.info("Participante ({}) removido da sala ({})!",
-                participant.getUuid(),
-                participant.getRoom().getCode());
+            participant.getUuid(),
+            participant.getRoom().getCode()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     };
 
     public void answerQuestion(
-            Question question,
-            Participant participant,
-            String answer) {
+        Question question,
+        Participant participant,
+        List<String> answers
+    ) {
         // TODO conferir aqui
-        Boolean isCorrect = question.validate(List.of(answer)).getFirst();
+        Boolean isCorrect = question.validate(answers).getFirst();
 
         synchronized (participant) {
             participant.setNetxDifficulty(isCorrect);
@@ -134,13 +137,13 @@ public class ParticipantService {
                 participant.incrementCorrectAnswers();
             } else {
                 participant.incrementWrongAnswers();
-            }
-            ;
-        }
+            };
+        };
 
         log.info("Participante ({}) respondeu a pergunta ({})!",
-                participant.getUuid(),
-                question.getRoot().getUuid());
+            participant.getUuid(),
+            question.getRoot().getUuid()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     }
 };

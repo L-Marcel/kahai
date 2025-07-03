@@ -47,11 +47,11 @@ public class ConcreteQuestion implements Question {
     @JsonBackReference
     private Game game;
 
-    @Column(name = "question")
+    @Column(nullable = false, length = 600)
     private String question;
 
     @JsonManagedReference
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "question")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Answer> answers;
 
     @JsonManagedReference
@@ -107,7 +107,7 @@ public class ConcreteQuestion implements Question {
     @Override
     public List<Boolean> validate(List<String> userAnswers) {
         Set<String> correctAnswersSet = this.answers.stream()
-                .map(Answer::getText)
+                .map(Answer::getAnswer)
                 .collect(Collectors.toSet());
         return userAnswers.stream()
                 .map(correctAnswersSet::contains)

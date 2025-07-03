@@ -30,6 +30,7 @@ public class AgentGenAI {
     @Autowired
     private ObjectMapper objectMapper;
 
+    // language=xmlç
     private final String SYSTEM_PROMPT_TEMPLATE = """
                 <system>
                     <context>
@@ -78,22 +79,22 @@ public class AgentGenAI {
 
     private String buildPrompt(Question question) {
         String contextsBlock = question.getRoot().getContexts().stream()
-                .map(context -> String.format("        <context>%s</context>", context.getName()))
-                .collect(Collectors.joining("\n"));
+            .map(context -> String.format("        <context>%s</context>", context.getName()))
+            .collect(Collectors.joining("\n"));
 
         String answersBlock;
         List<Answer> answers = question.getRoot().getAnswers();
+        
         if (answers != null && !answers.isEmpty()) {
             String allAnswers = answers.stream()
-                    .map(answer -> String.format("        <answer>%s</answer>", answer.getText()))
-                    .collect(Collectors.joining("\n"));
+                .map(answer -> String.format("        <answer>%s</answer>", answer.getAnswer()))
+                .collect(Collectors.joining("\n"));
 
             answersBlock = String.format("    <answers>\n%s\n    </answers>", allAnswers);
         } else {
             answersBlock = "    <answers>\n        <answer>Nenhuma resposta correta fornecida.</answer>\n    </answers>";
-        }
+        };
 
-        // CORREÇÃO: O template do prompt foi ajustado para garantir um XML bem-formado.
         return String.format(
                 // language=xml
                 """
@@ -105,16 +106,17 @@ public class AgentGenAI {
                             </contexts>
                         </prompt>
                         """,
-                question.getRoot().getQuestion(),
-                answersBlock,
-                contextsBlock);
-    }
+            question.getRoot().getQuestion(),
+            answersBlock,
+            contextsBlock
+        );
+    };
 
     public void generateRoomQuestionsVariants(
-            Question question,
-            Room room,
-            AgentGenAICallback callback) {
-
+        Question question,
+        Room room,
+        AgentGenAICallback callback
+    ) {
         String jsonExample = question.getPromptFormat();
         String prompt = buildPrompt(question);
 
@@ -122,50 +124,57 @@ public class AgentGenAI {
         String finalSystemPrompt = String.format(SYSTEM_PROMPT_TEMPLATE, jsonExample);
 
         publisher.emitGenerationStatus(
-                room,
-                "Gerando variações");
+            room,
+            "Gerando variações"
+        );
 
         genAI.request(
-                finalSystemPrompt,
-                prompt,
-                (response) -> {
+            finalSystemPrompt,
+            prompt,
+            (response) -> {
+                publisher.emitGenerationStatus(
+                    room,
+                    "Recebendo resposta da IA"
+                );
+
+                response.ifPresentOrElse((output) -> {
                     publisher.emitGenerationStatus(
+                        room,
+                        "Formatando respota da IA"
+                    );
+
+                    String json = output
+                        .replaceAll("(?s)```(?:json)?\\s*(.*?)\\s*```", "$1")
+                        .trim();
+
+                    try {
+                        List<QuestionVariant> variants = objectMapper.readValue(
+                            json,
+                            new TypeReference<List<QuestionVariant>>() {}
+                        );
+
+                        variants.forEach(variant -> variant.setOriginal(question));
+                        publisher.emitGenerationStatus(
                             room,
-                            "Recebendo resposta da IA");
+                            "Variações geradas com sucesso"
+                        );
 
-                    response.ifPresentOrElse((output) -> {
+                        callback.accept(variants);
+                    } catch (IOException e) {
+                        log.error("Formato invalido recebido pela IA!\n\n" + e.getMessage() + "\n");
                         publisher.emitGenerationStatus(
-                                room,
-                                "Formatando respota da IA");
-
-                        String json = output
-                                .replaceAll("(?s)```(?:json)?\\s*(.*?)\\s*```", "$1")
-                                .trim();
-
-                        try {
-                            List<QuestionVariant> variants = objectMapper.readValue(
-                                    json,
-                                    new TypeReference<List<QuestionVariant>>() {
-                                    });
-
-                            variants.forEach(variant -> variant.setOriginal(question));
-                            publisher.emitGenerationStatus(
-                                    room,
-                                    "Variações geradas com sucesso");
-
-                            callback.accept(variants);
-                        } catch (IOException e) {
-                            log.error("Formato invalido recebido pela IA!\n\n" + e.getMessage() + "\n");
-                            publisher.emitGenerationStatus(
-                                    room,
-                                    "Formato invalido recebido pela IA");
-                        }
-                    }, () -> {
-                        log.error("Falha ao gerar variações da pergunta ({})!", question.getRoot().getUuid());
-                        publisher.emitGenerationStatus(
-                                room,
-                                "Falha ao gerar variações");
-                    });
+                            room,
+                            "Formato invalido recebido pela IA"
+                        );
+                    }
+                }, () -> {
+                    log.error("Falha ao gerar variações da pergunta ({})!", question.getRoot().getUuid());
+                    publisher.emitGenerationStatus(
+                        room,
+                        "Falha ao gerar variações"
+                    );
                 });
+            }
+        );
     };
 };

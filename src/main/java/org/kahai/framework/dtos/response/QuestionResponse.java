@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.kahai.framework.models.Answer;
 import org.kahai.framework.models.Context;
 import org.kahai.framework.models.questions.Question;
 import org.kahai.framework.models.questions.ConcreteQuestion;
@@ -21,8 +22,7 @@ public class QuestionResponse {
     private UUID uuid;
     private String question;
     private List<String> contexts;
-    private List<AnswerResponse> answers;
-    private String formattedPrompt; 
+    private List<String> answers; 
 
     public QuestionResponse(Question question) {
         ConcreteQuestion root = question.getRoot();
@@ -38,7 +38,7 @@ public class QuestionResponse {
         
         if (root.getAnswers() != null) {
             this.answers = root.getAnswers().stream()
-                .map(AnswerResponse::new)
+                .map(Answer::getAnswer)
                 .collect(Collectors.toList());
         };
     };

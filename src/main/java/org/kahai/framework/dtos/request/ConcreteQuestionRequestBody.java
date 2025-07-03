@@ -28,12 +28,14 @@ public class ConcreteQuestionRequestBody implements QuestionRequestBody {
     public Question toQuestion() {
         ConcreteQuestion concrete = new ConcreteQuestion();
         concrete.setQuestion(question);
+        
         List<Answer> answerObjects = this.answers.stream().map(answerText -> {
             Answer answer = new Answer();
             answer.setQuestion(concrete);
-            answer.setText(answerText);
+            answer.setAnswer(answerText);
             return answer;
         }).collect(Collectors.toList());
+
         concrete.setAnswers(answerObjects);
         concrete.setContexts(List.of());
         concrete.setCorrectValue(this.correctValue != null ? this.correctValue : 0);

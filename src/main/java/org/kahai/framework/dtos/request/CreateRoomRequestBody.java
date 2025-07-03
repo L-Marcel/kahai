@@ -11,6 +11,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoomRequestBody {
+public class CreateRoomRequestBody {
     private UUID game;
 };

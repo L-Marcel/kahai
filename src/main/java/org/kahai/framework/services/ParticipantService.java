@@ -1,5 +1,6 @@
 package org.kahai.framework.services;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,10 +29,9 @@ public class ParticipantService {
     private RoomEventPublisher roomEventPublisher;
 
     private Boolean isParticipantAlreadyInRoom(
-        Room room, 
-        Participant candidate
-    ) {
-        for(Participant participant : room.getParticipants()) {
+            Room room,
+            Participant candidate) {
+        for (Participant participant : room.getParticipants()) {
             String nickname = participant.getNickname().toUpperCase();
             String candidateNickname = candidate.getNickname().toUpperCase();
             Boolean nicknameAlreadyInUse = nickname.equals(candidateNickname);
@@ -39,113 +39,108 @@ public class ParticipantService {
             Boolean userAlreadyInUse = false;
             Optional<User> user = participant.getUser();
             Optional<User> candidateUser = candidate.getUser();
-            if(user.isPresent() && candidateUser.isPresent()) {
+            if (user.isPresent() && candidateUser.isPresent()) {
                 userAlreadyInUse = user.get().getEmail().equals(
-                    candidateUser.get().getEmail()
-                );
-            };
+                        candidateUser.get().getEmail());
+            }
+            ;
 
-            if(nicknameAlreadyInUse || idAlreadyInUse || userAlreadyInUse) 
+            if (nicknameAlreadyInUse || idAlreadyInUse || userAlreadyInUse)
                 return true;
-        };
+        }
+        ;
 
         return false;
     };
-    
+
     public Participant createParticipant(
-        JoinRoomRequestBody body, 
-        Room room, 
-        User user
-    ) throws ParticipantAlreadyInRoom {
+            JoinRoomRequestBody body,
+            Room room,
+            User user) throws ParticipantAlreadyInRoom {
         String nickname = body.getNickname();
         Participant participant;
 
-        if(user != null) participant = new Participant(nickname, room, user);
-        else participant = new Participant(nickname, room);
+        if (user != null)
+            participant = new Participant(nickname, room, user);
+        else
+            participant = new Participant(nickname, room);
 
-        synchronized(room.getParticipants()) {
+        synchronized (room.getParticipants()) {
             Boolean alreadyInRoom = this.isParticipantAlreadyInRoom(room, participant);
-            if(alreadyInRoom) throw new ParticipantAlreadyInRoom();
+            if (alreadyInRoom)
+                throw new ParticipantAlreadyInRoom();
 
             this.repository.add(participant);
             room.getParticipants().add(participant);
         }
 
-        log.info("Novo participante ({}) adicionado na sala ({})!", 
-            participant.getUuid(), 
-            room.getCode()
-        );
+        log.info("Novo participante ({}) adicionado na sala ({})!",
+                participant.getUuid(),
+                room.getCode());
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
 
         return participant;
     };
 
     public Participant findParticipantByUser(
-        User user
-    ) throws ParticipantNotFound {
+            User user) throws ParticipantNotFound {
         return this.repository.findByUser(user)
-            .orElseThrow(ParticipantNotFound::new);
+                .orElseThrow(ParticipantNotFound::new);
     };
 
     public Participant findParticipantByUuid(
-        UUID uuid
-    ) throws ParticipantNotFound {
+            UUID uuid) throws ParticipantNotFound {
         return this.repository.findByUuid(uuid)
-            .orElseThrow(ParticipantNotFound::new);
+                .orElseThrow(ParticipantNotFound::new);
     };
 
     public void removeAllByRoom(Room room) {
-        synchronized(room.getParticipants()) {
+        synchronized (room.getParticipants()) {
             for (Participant participant : room.getParticipants()) {
                 participant.getRoom().getParticipants().remove(participant);
                 this.repository.remove(participant);
-            };
+            }
+            ;
             log.info("Participantes da sala ({}) removidos!", room.getCode());
-        };
+        }
+        ;
     };
 
     public void removeParticipant(Participant participant) {
-        synchronized(participant.getRoom().getParticipants()) {
+        synchronized (participant.getRoom().getParticipants()) {
             participant.getRoom().getParticipants().remove(participant);
             this.repository.remove(participant);
-        };
+        }
+        ;
 
-        log.info("Participante ({}) removido da sala ({})!", 
-            participant.getUuid(), 
-            participant.getRoom().getCode()
-        );
+        log.info("Participante ({}) removido da sala ({})!",
+                participant.getUuid(),
+                participant.getRoom().getCode());
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     };
 
     public void answerQuestion(
-        Question question,
-        Participant participant,
-        String answer
-    ) {
-        Boolean isCorrect = question.getRoot().getAnswers()
-            .getFirst()
-            .equals(answer);
+            Question question,
+            Participant participant,
+            String answer) {
+        // TODO conferir aqui
+        Boolean isCorrect = question.validate(List.of(answer)).getFirst();
 
-        // TODO - Esse equals vai falhar, pq é uma comparação
-        // de Answer com String. E mesmo que fosse Answer com
-        // Answer, talvez ainda desse errado pq é comparação de objetos
-        // deve ter um método para implementar de comparação
-
-        synchronized(participant) {
+        synchronized (participant) {
             participant.setNetxDifficulty(isCorrect);
-            
-            if(isCorrect) {
+
+            if (isCorrect) {
                 participant.incrementScore();
                 participant.incrementCorrectAnswers();
             } else {
                 participant.incrementWrongAnswers();
-            };
+            }
+            ;
         }
 
-        log.info("Participante ({}) respondeu a pergunta ({})!", 
-            participant.getUuid(), 
-            question.getRoot().getUuid()
-        );
+        log.info("Participante ({}) respondeu a pergunta ({})!",
+                participant.getUuid(),
+                question.getRoot().getUuid());
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
-    };
+    }
 };

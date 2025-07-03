@@ -9,6 +9,7 @@ module org.hakai.framework {
     exports org.kahai.framework.dtos.request;
     exports org.kahai.framework.dtos.response;
     exports org.kahai.framework.errors;
+    exports org.kahai.framework.repositories;
 
     opens org.kahai.framework to org.hibernate.orm.core, org.springframework.beans, org.springframework.core;
 

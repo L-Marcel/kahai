@@ -1,10 +1,10 @@
 package org.kahai.framework.services;
 
+import org.kahai.framework.errors.AnswerIsNull;
 import org.kahai.framework.models.Game;
 import org.kahai.framework.models.ParticipantAnswer;
 import org.kahai.framework.models.Question;
 import org.kahai.framework.repositories.ParticipantAnswerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +20,8 @@ public class ParticipantAnswerService {
     }
 
     public ParticipantAnswer saveParticipantAnswer(ParticipantAnswer answer) {
-        if (answer.getAnswer().isEmpty()) {
-            throw new IllegalArgumentException("A resposta não pode ser vazia.");
+        if (answer.getAnswers().isEmpty()) {
+            throw new AnswerIsNull();
         }
         return repository.save(answer);
     }

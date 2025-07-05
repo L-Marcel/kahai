@@ -2,8 +2,8 @@ package org.kahai.framework.models;
 
 import java.util.UUID;
 
-import org.kahai.framework.models.questions.ConcreteQuestion;
-import org.kahai.framework.models.questions.Question;
+import org.kahai.framework.questions.ConcreteQuestion;
+import org.kahai.framework.questions.Question;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "participant_answer")
+@Table(name = "participant_answers")
 @NoArgsConstructor
 public class ParticipantAnswer {
     @Id

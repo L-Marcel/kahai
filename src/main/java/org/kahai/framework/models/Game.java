@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.kahai.framework.models.questions.ConcreteQuestion;
+import org.kahai.framework.questions.ConcreteQuestion;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -29,12 +29,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "games")
-public class Game implements GamePrototype{
+public class Game implements GamePrototype {
     @Id
     @GeneratedValue
     private UUID uuid;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
     @ManyToOne
@@ -50,7 +50,7 @@ public class Game implements GamePrototype{
     private List<ParticipantAnswer> answers;
 
     @Override
-    public void clone(User newOwner) {
-        new Game(this.uuid, this.title, newOwner, this.questions, this.answers);
-    }
+    public Game clone(User newOwner) {
+        return new Game(this.uuid, this.title, newOwner, this.questions, this.answers);
+    };
 };

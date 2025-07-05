@@ -2,7 +2,7 @@ package org.kahai.framework.models;
 
 import java.util.UUID;
 
-import org.kahai.framework.models.questions.ConcreteQuestion;
+import org.kahai.framework.questions.ConcreteQuestion;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -27,10 +27,10 @@ import lombok.Setter;
 @Table(name = "contexts")
 public final class Context {
     @Id
-    @GeneratedValue(strategy=GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne
@@ -40,5 +40,10 @@ public final class Context {
 
     public Context(String name) {
         this.name = name;
+    };
+
+    public Context(String name, ConcreteQuestion question) {
+        this.name = name;
+        this.question = question;
     };
 };

@@ -18,6 +18,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Inherited
 @SpringBootApplication
 @EnableJpaRepositories("org.kahai.framework.repositories")
-@EntityScan("org.kahai.framework.models")
+@EntityScan("org.kahai.framework")
 @ComponentScan("org.kahai.framework")
 public @interface Kahai {};

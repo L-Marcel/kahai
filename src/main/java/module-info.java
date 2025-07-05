@@ -1,7 +1,11 @@
 module org.hakai.framework {
     exports org.kahai.framework.transients;
     exports org.kahai.framework.models;
-    exports org.kahai.framework.models.questions;
+    exports org.kahai.framework.questions;
+    exports org.kahai.framework.questions.request;
+    exports org.kahai.framework.questions.response;
+    exports org.kahai.framework.questions.variants;
+    exports org.kahai.framework.questions.variants.response;
     exports org.kahai.framework.services;
     exports org.kahai.framework.services.strategies;
     exports org.kahai.framework.services.queue;
@@ -11,9 +15,10 @@ module org.hakai.framework {
     exports org.kahai.framework.dtos.response;
     exports org.kahai.framework.errors;
     exports org.kahai.framework.repositories;
+    exports org.kahai.framework.validation;
 
     opens org.kahai.framework to org.hibernate.orm.core, org.springframework.beans, org.springframework.core;
-
+    
     requires transitive org.reflections;
     requires transitive org.apache.commons.lang3;
     requires transitive spring.boot.starter;

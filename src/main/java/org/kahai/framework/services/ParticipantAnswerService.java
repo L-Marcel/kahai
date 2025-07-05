@@ -4,7 +4,7 @@ import org.kahai.framework.models.Answer;
 import org.kahai.framework.models.Game;
 import org.kahai.framework.models.ParticipantAnswer;
 import org.kahai.framework.models.User;
-import org.kahai.framework.models.questions.Question;
+import org.kahai.framework.questions.Question;
 import org.kahai.framework.repositories.ParticipantAnswerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

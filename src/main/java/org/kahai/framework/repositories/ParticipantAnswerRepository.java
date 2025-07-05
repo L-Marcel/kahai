@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.kahai.framework.models.Game;
 import org.kahai.framework.models.ParticipantAnswer;
 import org.kahai.framework.models.User;
-import org.kahai.framework.models.questions.ConcreteQuestion;
+import org.kahai.framework.questions.ConcreteQuestion;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 

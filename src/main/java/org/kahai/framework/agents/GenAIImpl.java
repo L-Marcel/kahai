@@ -25,7 +25,9 @@ public class GenAIImpl implements GenAI {
     private final Float temperature;
     private final String model;
     private final HttpClient httpClient;
-    private final ObjectMapper objectMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private KeySource keySource;
@@ -34,7 +36,6 @@ public class GenAIImpl implements GenAI {
         this.temperature = properties.getAi().getTemperature();
         this.model = properties.getAi().getModel();
         this.httpClient = HttpClient.newHttpClient();
-        this.objectMapper = new ObjectMapper();
     };
 
     @Override

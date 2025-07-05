@@ -1,0 +1,52 @@
+package org.kahai.framework.questions.variants;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.kahai.framework.annotations.QuestionVariantPayload;
+import org.kahai.framework.models.Difficulty;
+import org.kahai.framework.questions.Question;
+import org.kahai.framework.questions.variants.response.ConcreteQuestionVariantResponse;
+import org.kahai.framework.questions.variants.response.QuestionVariantResponse;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public final class ConcreteQuestionVariant implements QuestionVariant {
+    private UUID uuid = UUID.randomUUID();
+    
+    @QuestionVariantPayload
+    private String question;
+
+    @QuestionVariantPayload
+    private Difficulty difficulty = Difficulty.NORMAL;
+
+    @QuestionVariantPayload
+    private List<String> options;
+
+    private Question original;
+
+    public ConcreteQuestionVariant(
+        String question,
+        Difficulty difficulty,
+        List<String> options
+    ) {
+        this.question = question;
+        this.difficulty = difficulty;
+        this.options = options;
+    };
+
+    @Override
+    public ConcreteQuestionVariant getRoot() {
+        return this;
+    };
+
+    @Override
+    public QuestionVariantResponse toResponse(Boolean hasAnswer) {
+        return new ConcreteQuestionVariantResponse(this, hasAnswer);
+    };
+};

@@ -88,4 +88,13 @@ public class KahaiProperties {
             return KahaiUtils.stringToArray(this.keys);
         };
     };
+    
+    @Getter
+    private final Jackson jackson = new Jackson();
+
+    @Setter
+    public static class Jackson {
+        @Getter
+        private Boolean indentOutput = true;
+    };
 };

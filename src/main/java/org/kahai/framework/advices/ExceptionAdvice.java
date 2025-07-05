@@ -5,6 +5,7 @@ import java.util.Map;
 import org.kahai.framework.errors.HttpError;
 import org.kahai.framework.errors.MethodNotAllowed;
 import org.kahai.framework.errors.RouteNotFound;
+import org.kahai.framework.errors.ValidationsError;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,6 +14,15 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 @ControllerAdvice
 public class ExceptionAdvice {
+    @ExceptionHandler(ValidationsError.class)
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(
+        ValidationsError error
+    ) {
+        return ResponseEntity
+            .status(error.getStatus())
+            .body(error.getError());
+    };
+
     @ExceptionHandler(HttpError.class)
     public ResponseEntity<Map<String, Object>> handleHttpErrors(
         HttpError error

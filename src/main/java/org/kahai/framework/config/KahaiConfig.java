@@ -1,6 +1,8 @@
 package org.kahai.framework.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.util.ClassUtils;
 import org.kahai.framework.Kahai;
 import org.kahai.framework.KahaiProperties;
@@ -39,15 +42,23 @@ public class KahaiConfig {
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type",
-        visible = true
+        visible = false
     ) public interface TypeJson {};
 
+    
+
     @Bean
+    @Primary
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
-        if(this.indentOutput) objectMapper.enable(
-            SerializationFeature.INDENT_OUTPUT
-        );
+        
+        objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+
+        if(this.indentOutput) {
+            objectMapper.enable(
+                SerializationFeature.INDENT_OUTPUT
+            );
+        };
         
         String basePackageName = this.getBasePackageName();
 
@@ -82,9 +93,12 @@ public class KahaiConfig {
 
         for (Class<?> subType : subTypes) {
             String typeName = subType.getName();
-            NamedType type = new NamedType(subType, typeName);
+            String[] nameParts = typeName.split("\\.");
+            String className = nameParts[nameParts.length - 1];
+            
+            NamedType type = new NamedType(subType, className);
             objectMapper.registerSubtypes(type);
-            log.info("Tipo ({}) registrado!", typeName);
+            log.info("Tipo ({}) registrado!", className);
         };
     };
 

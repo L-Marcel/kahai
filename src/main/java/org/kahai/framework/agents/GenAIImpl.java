@@ -74,7 +74,10 @@ public class GenAIImpl implements GenAI {
                     String responseBody = response.body();
 
                     if(response.statusCode() != 200) {
-                        log.error("Erro ao realizar a requisição para o agente!\n\n" + responseBody + "\n");
+                        log.error(
+                            "Erro ao realizar a requisição para o agente!\n\n{}\n", 
+                            responseBody
+                        );
                         callback.accept(Optional.empty());
                         return;
                     };
@@ -91,11 +94,17 @@ public class GenAIImpl implements GenAI {
                         callback.accept(Optional.of(responseText));
                     } catch (Exception e) {
                         callback.accept(Optional.empty());
-                        log.error("Erro ao processar a resposta do agente!\n\n" + e.getMessage() + "\n");
+                        log.error(
+                            "Erro ao processar a resposta do agente!\n\n{}\n", 
+                            e.getMessage()
+                        );
                     };
                 });
         } catch (Exception e) {
-            log.error("Erro ao enviar requisição para o agente!\n\n" + e.getMessage() + "\n");
+            log.error(
+                "Erro ao enviar requisição para o agente!\n\n{}\n", 
+                e.getMessage()
+            );
             callback.accept(Optional.empty());
         };
     };

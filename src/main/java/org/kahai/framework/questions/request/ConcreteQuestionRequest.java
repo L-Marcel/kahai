@@ -46,33 +46,35 @@ public class ConcreteQuestionRequest implements QuestionRequest {
     };
     
     @Override
-    public void validate(ValidatorChain validator) {
-        validator.validate("question", this.question)
-            .nonempty("A questão é obrigatória!")
-            .max(300, "A questão só pode ter até 300 caracteres!");
+    public void validate(ValidatorChain validator, String prefix) {
+        validator.validate(prefix + ".question", this.question)
+            .nonempty("A pergunta é obrigatória!")
+            .max(300, "A pergunta só pode ter até 300 caracteres!");
         
-        validator.validate("answers", this.answers)
+        validator.validate(prefix + ".answers", this.answers)
             .min(1, "Deve haver pelo menos uma opção de resposta!")
             .max(10, "Deve haver no máximo 10 opções de resposta!");
         
-        answers.forEach((answer) -> {
-            validator.validate("answers", answer)
+        for(int i = 0; i < this.answers.size(); i++) {
+            String answer = this.answers.get(i);
+            validator.validate(prefix + ".answers." + i, answer)
                 .nonempty("Nenhuma resposta pode ser vazia!");
-        });
-        
-        validator.validate("context", this.contexts)
+        };
+
+        validator.validate(prefix + ".contexts", this.contexts)
             .min(1, "Deve haver pelo menos uma palavra-chave de contexto!")
             .max(10, "Deve haver no máximo 10 palavras-chave de contexto!");
-
-        this.contexts.forEach((context) -> {
-            validator.validate("context", this.contexts)
-                .nonempty("Nenhuma palavra-chave de contexto pode ser vazia!");
-        });
         
-        validator.validate("correctValue", this.correctValue)
+        for(int i = 0; i < this.contexts.size(); i++) {
+            String context = this.contexts.get(i);
+            validator.validate(prefix + ".contexts." + i, context)
+                .nonempty("Nenhuma palavra-chave de contexto pode ser vazia!");
+        };
+
+        validator.validate(prefix + ".correctValue", this.correctValue)
             .min(0, "O incremento mínimo por acerto é 0!");
         
-        validator.validate("wrongValue", this.wrongValue)
+        validator.validate(prefix + ".wrongValue", this.wrongValue)
             .min(0, "O decremento mínimo por erro é 0!");
     };
 };

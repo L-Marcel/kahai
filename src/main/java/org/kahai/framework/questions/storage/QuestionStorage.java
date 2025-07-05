@@ -64,7 +64,11 @@ public class QuestionStorage {
             Files.deleteIfExists(path);
             log.info("Questão ({}) deletada!", uuid);
         } catch (Exception e) {
-            log.error("Erro ao apagar arquivo da questão ({})!", uuid);
+            log.error(
+                "Erro ao apagar arquivo da questão ({})!\n\n{}\n",
+                uuid,
+                e.getMessage()
+            );
             throw new FileError();
         }
     };
@@ -83,7 +87,11 @@ public class QuestionStorage {
 
             log.info("Arquivo da questão ({}) escrito!", uuid);
         } catch (Exception e) {
-            log.info("Erro ao escrever arquivo da questão ({})!", uuid);
+            log.error(
+                "Erro ao escrever arquivo da questão ({})!\n\n{}\n", 
+                uuid,
+                e.getMessage()
+            );
             throw new FileError();
         };
     };
@@ -102,7 +110,12 @@ public class QuestionStorage {
             log.info("Questão ({}) carregada!", uuid);
             return question;
         } catch (IOException e) {
-            log.error("Falha ao carregar ou parsear o arquivo da questão ({})!", uuid, e);
+            log.error(
+                "Falha ao carregar ou parsear o arquivo da questão ({})!\n\n{}\n", 
+                uuid, 
+                e.getMessage()
+            );
+            
             throw new FileError();
         }
     };

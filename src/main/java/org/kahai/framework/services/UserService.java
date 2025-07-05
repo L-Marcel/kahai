@@ -14,9 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class UserService {
+public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-
+    
     @Autowired
     private UserRepository repository;
 

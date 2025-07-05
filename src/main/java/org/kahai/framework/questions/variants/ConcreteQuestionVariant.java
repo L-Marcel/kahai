@@ -3,29 +3,33 @@ package org.kahai.framework.questions.variants;
 import java.util.List;
 import java.util.UUID;
 
-import org.kahai.framework.annotations.QuestionVariantPayload;
 import org.kahai.framework.models.Difficulty;
 import org.kahai.framework.questions.Question;
 import org.kahai.framework.questions.variants.response.ConcreteQuestionVariantResponse;
 import org.kahai.framework.questions.variants.response.QuestionVariantResponse;
+import org.kahai.framework.questions.view.QuestionVariantView;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public final class ConcreteQuestionVariant implements QuestionVariant {
     private UUID uuid = UUID.randomUUID();
     
-    @QuestionVariantPayload
+    @JsonView(QuestionVariantView.Payload.class)
     private String question;
 
-    @QuestionVariantPayload
+    @JsonView(QuestionVariantView.Payload.class)
     private Difficulty difficulty = Difficulty.NORMAL;
 
-    @QuestionVariantPayload
+    @JsonView(QuestionVariantView.Payload.class)
     private List<String> options;
 
     private Question original;

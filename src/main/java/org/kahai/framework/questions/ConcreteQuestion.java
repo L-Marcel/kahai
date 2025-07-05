@@ -81,7 +81,6 @@ public class ConcreteQuestion implements Question {
     };
 
     @Override
-    @JsonIgnore
     public ConcreteQuestion getRoot() {
         return this;
     };

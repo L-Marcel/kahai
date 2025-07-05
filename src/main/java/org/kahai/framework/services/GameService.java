@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 @Service
-public final class GameService {
+public class GameService {
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
 
     @Autowired
@@ -53,9 +53,10 @@ public final class GameService {
             .nonempty("O título é obrigatório!")
             .max(45, "O título não pode ter mais de 45 caracteres!");
 
-        body.getQuestions().forEach((question) -> {
-            question.validate(validator);
-        });
+        for(int i = 0; i < body.getQuestions().size(); i++) {
+            QuestionRequest question = body.getQuestions().get(i);
+            question.validate(validator, "questions." + i);
+        };
 
         validator.run();
         
@@ -80,8 +81,8 @@ public final class GameService {
         
         try {
             questions.forEach((question) -> {
-                storage.save(question);
                 savedQuestions.add(question);
+                storage.save(question);
             });
         } catch (Exception e) {
             savedQuestions.forEach((question) -> {

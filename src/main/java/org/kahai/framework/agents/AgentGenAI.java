@@ -6,16 +6,20 @@ import java.util.List;
 import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.questions.Question;
 import org.kahai.framework.questions.variants.QuestionVariant;
-import org.kahai.framework.questions.view.QuestionVariantView;
 import org.kahai.framework.transients.Room;
+import org.kahai.framework.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.annotation.JsonFormat.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 @Component
 public class AgentGenAI {
@@ -59,6 +63,9 @@ public class AgentGenAI {
                 A resposta certa informada deve SEMPRE aparecer EXATAMENTE igual nas opções de resposta de cada uma das variações geradas. Sem nenhuma palavra ou símbolo a mais.
                 </rule>
                 <rule>
+                Mesmo que a resposta certa esteja ERRADA, ela DEVE aparecer.
+                </rule>
+                <rule>
                 Não coloque prefixos de listagem nas respostas, ex: A. B. C.; I. II. III. ou 1. 2. 3.
                 </rule>
                 <rule>
@@ -82,17 +89,25 @@ public class AgentGenAI {
         QuestionVariant second = question.getPromptExamples().getSecond();
         QuestionVariant third = question.getPromptExamples().getThird();
         
-        return this.objectMapper
-            .writerWithView(QuestionVariantView.Payload.class)
+        JavaType listType = this.objectMapper.getTypeFactory()
+            .constructCollectionType(
+                List.class, 
+                QuestionVariant.class
+            );
+
+        String json = this.objectMapper
+            .writerFor(listType)
             .writeValueAsString(List.of(
                 first,
                 second,
                 third
             ));
+        
+        return StringUtils.indentText(json, "            ");
     };
 
     private String buildPrompt(Question question) throws JsonProcessingException {
-        return this.objectMapper.writeValueAsString(question);
+        return this.objectMapper.writeValueAsString(question.toResponse());
     };
 
     public void generateRoomQuestionsVariants(
@@ -131,8 +146,11 @@ public class AgentGenAI {
                         String json = output
                             .replaceAll("(?s)```(?:json)?\\s*(.*?)\\s*```", "$1")
                             .trim();
-
+                        
                         try {
+                            json = StringUtils.prettyFormat(json, objectMapper);
+                            log.debug("Resposta da IA foi obtida!\n\n{}", json);
+
                             TypeReference<List<QuestionVariant>> typeRef = new TypeReference<>() {};
                             List<QuestionVariant> variants = objectMapper.readValue(
                                 json,
@@ -147,14 +165,20 @@ public class AgentGenAI {
 
                             callback.accept(variants);
                         } catch (IOException e) {
-                            log.error("Formato invalido recebido pela IA!\n\n" + e.getMessage() + "\n");
+                            log.error(
+                                "Formato invalido recebido pela IA!\n\n{}\n", 
+                                e.getMessage()
+                            );
                             publisher.emitGenerationStatus(
                                 room,
                                 "Formato invalido recebido pela IA"
                             );
                         }
                     }, () -> {
-                        log.error("Falha ao gerar variações da pergunta ({})!", question.getRoot().getUuid());
+                        log.error(
+                            "Falha ao gerar variações da pergunta ({})!", 
+                            question.getRoot().getUuid()
+                        );
                         publisher.emitGenerationStatus(
                             room,
                             "Falha ao gerar variações"
@@ -163,7 +187,11 @@ public class AgentGenAI {
                 }
             );
         } catch (Exception e) {
-            log.error("Falha ao gerar variações da pergunta ({})!", question.getRoot().getUuid());
+            log.error(
+                "Falha ao gerar variações da pergunta ({})!\n\n{}\n", 
+                question.getRoot().getUuid(), 
+                e.getMessage()
+            );
             publisher.emitGenerationStatus(
                 room,
                 "Falha ao gerar variações"

@@ -23,7 +23,7 @@ public class ConcreteQuestionVariantResponse implements QuestionVariantResponse 
     private String question;
     private Difficulty difficulty = Difficulty.NORMAL;
     private List<String> options;
-    private List<String> context;
+    private List<String> contexts;
     private UUID original;
     private List<String> answers;
 
@@ -37,7 +37,7 @@ public class ConcreteQuestionVariantResponse implements QuestionVariantResponse 
             .getRoot()
             .getUuid();
         
-        this.context = question.getOriginal()
+        this.contexts = question.getOriginal()
             .getRoot()
             .getContexts()
             .stream()

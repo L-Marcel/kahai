@@ -31,6 +31,7 @@ public class UserService {
     ) throws ValidationsError {
         String email = body.getEmail();
         String password = body.getPassword();
+        String confirmPassword = body.getConfirmPassword();
         String name = body.getName();
 
         Validator validator = new Validator();
@@ -45,7 +46,7 @@ public class UserService {
             .nonempty("O e-mail é obrigatório!")
             .email("O e-mail deve ser válido!")
             .verify(
-                !this.repository.findByEmail(email).isPresent(), 
+                (value) -> !this.repository.findByEmail(value).isPresent(), 
                 "O e-mail já se encontra em uso!"
             );
         
@@ -54,6 +55,9 @@ public class UserService {
             .min(6, "A senha deve ter no mínimo 6 caracteres!")
             .max(20, "A senha deve ter no máximo 6 caracteres!");
         
+        validator.validate("confirmPassword", confirmPassword)
+            .verify((value) -> value.equals(password), "As senhas devem ser iguais!");
+            
         validator.run();
 
         User user = new User(email, encoder.encode(password), name);

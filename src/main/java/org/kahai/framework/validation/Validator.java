@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -161,9 +162,9 @@ public class Validator implements ValidatorChain {
             return this;
         };
 
-        public Field<T> verify(boolean condition, String error) {
+        public Field<T> verify(Function<T, Boolean> condition, String error) {
             this.steps.add(() -> {
-                if(!condition || this.value == null)
+                if(this.value == null || condition.apply(value))
                     throw new ValidationStepError(error);
             });
 

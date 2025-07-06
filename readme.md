@@ -9,7 +9,7 @@
     - [Estratégia de pontuação](#estratégia-de-pontuação)
     - [Estratégia de eventos de sala](#estratégia-de-eventos-de-sala)
     - [Clonagem de jogos](#clonagem-de-jogos)
-    - [Chaves e modelo da AI](#chaves-e-modelo-da-ai)
+    - [Chaves, modelo da IA, etc...](#chaves-modelo-da-ia-etc)
 
 # Resumo
 
@@ -42,7 +42,7 @@ Deixamos como pontos fixos:
 
 Como requisito, foram elaborados os seguintes `pontos flexíveis`.
 
-## Chaves, modelo da AI, etc...
+## Chaves, modelo da IA, etc...
 
 Este ponto flexível, ao contrário de todos os demais que desenvolvemos, é característico do tipo `Black-Box`. Em síntese, o `Kahai` permite
 que você defina as seguintes configurações através do arquivo `.properties`.

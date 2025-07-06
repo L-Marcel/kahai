@@ -17,7 +17,6 @@ import org.kahai.framework.questions.variants.QuestionVariant;
 import org.kahai.framework.utils.Examples;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;

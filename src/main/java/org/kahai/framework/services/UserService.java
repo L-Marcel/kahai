@@ -1,14 +1,12 @@
 package org.kahai.framework.services;
 
 import org.kahai.framework.auth.JwtUtil;
-import org.kahai.framework.dtos.request.RegisterRequestBody;
-import org.kahai.framework.errors.EmailAlreadyInUse;
+import org.kahai.framework.dtos.request.RegisterRequest;
 import org.kahai.framework.errors.InvalidCredentials;
-import org.kahai.framework.errors.InvalidEmail;
-import org.kahai.framework.errors.MissingFields;
-import org.kahai.framework.errors.WeakPassword;
+import org.kahai.framework.errors.ValidationsError;
 import org.kahai.framework.models.User;
 import org.kahai.framework.repositories.UserRepository;
+import org.kahai.framework.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class UserService {
+public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-
+    
     @Autowired
     private UserRepository repository;
 
@@ -29,26 +27,34 @@ public final class UserService {
     private JwtUtil jwtUtil;
 
     public User createUser(
-        RegisterRequestBody body
-    ) throws MissingFields, InvalidEmail, WeakPassword, EmailAlreadyInUse {
+        RegisterRequest body
+    ) throws ValidationsError {
         String email = body.getEmail();
         String password = body.getPassword();
         String name = body.getName();
+
+        Validator validator = new Validator();
+
+        validator.validate("body", body);
         
-        if(
-            email == null || email.isBlank() ||
-            password == null || password.isBlank() ||
-            name == null || name.isBlank()
-        ) throw new MissingFields();
-
-        if(!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$"))
-            throw new InvalidEmail();
-
-        if(password.length() < 6)
-            throw new WeakPassword();
-
-        if(repository.findByEmail(email).isPresent())
-            throw new EmailAlreadyInUse();
+        validator.validate("name", name)
+            .nonempty("O nome é obrigatório!")
+            .max(45, "O nome não pode ter mais de 45 caracteres!");
+        
+        validator.validate("email", email)
+            .nonempty("O e-mail é obrigatório!")
+            .email("O e-mail deve ser válido!")
+            .verify(
+                !this.repository.findByEmail(email).isPresent(), 
+                "O e-mail já se encontra em uso!"
+            );
+        
+        validator.validate("password", password)
+            .nonempty("A senha é obrigatória!")
+            .min(6, "A senha deve ter no mínimo 6 caracteres!")
+            .max(20, "A senha deve ter no máximo 6 caracteres!");
+        
+        validator.run();
 
         User user = new User(email, encoder.encode(password), name);
         repository.save(user);

@@ -33,33 +33,18 @@ public final class Participant {
         this.room = room;
         this.user = Optional.of(user);
     };
-
-    public void incrementScore() {
-        switch (this.currentDifficulty) {
-            case Difficulty.EASY:
-                this.score += 100;
-                break;
-            case Difficulty.NORMAL:
-                this.score += 200;
-                break;
-            case Difficulty.HARD:
-                this.score += 300;
-                break;
-            default:
-                break;
-        }
-    };
-
+    
     public void incrementCorrectAnswers() {
         this.correctAnswers += 1;
     };
-
+    
     public void incrementWrongAnswers() {
         this.wrongAnswers += 1;
     };
 
-    public Difficulty setNetxDifficulty(
-            Boolean isCorrect) {
+    public Difficulty setNextDifficulty(
+        Boolean isCorrect
+    ) {
         Difficulty[] difficulties = Difficulty.values();
         Integer index = currentDifficulty.ordinal();
 
@@ -67,8 +52,7 @@ public final class Participant {
             return currentDifficulty = difficulties[index + 1];
         } else if (!isCorrect && index > 0) {
             return currentDifficulty = difficulties[index - 1];
-        }
-        ;
+        };
 
         return currentDifficulty;
     };

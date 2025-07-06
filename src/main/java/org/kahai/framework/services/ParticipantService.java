@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.kahai.framework.dtos.request.JoinRoomRequestBody;
+import org.kahai.framework.dtos.request.JoinRoomRequest;
 import org.kahai.framework.errors.ParticipantAlreadyInRoom;
 import org.kahai.framework.errors.ParticipantNotFound;
+import org.kahai.framework.errors.VariantsScoreStrategyNotDefined;
 import org.kahai.framework.events.RoomEventPublisher;
 import org.kahai.framework.models.User;
-import org.kahai.framework.models.questions.Question;
+import org.kahai.framework.questions.Question;
 import org.kahai.framework.repositories.ParticipantRepository;
 import org.kahai.framework.services.strategies.VariantsScoreStrategy;
 import org.kahai.framework.transients.Participant;
@@ -28,12 +29,25 @@ public class ParticipantService {
 
     @Autowired
     private RoomEventPublisher roomEventPublisher;
+
     @Autowired
     private VariantsScoreStrategy scoreStrategy;
 
+    private VariantsScoreStrategy getScoreStrategy() {
+        if (this.scoreStrategy == null)
+            throw new VariantsScoreStrategyNotDefined();
+        return this.scoreStrategy;
+    };
+
+    public void setScoreStrategy(VariantsScoreStrategy strategy) {
+        this.scoreStrategy = strategy;
+        log.info("Estratégia de pontuação alterada!");
+    };
+
     private Boolean isParticipantAlreadyInRoom(
-            Room room,
-            Participant candidate) {
+        Room room,
+        Participant candidate
+    ) {
         for (Participant participant : room.getParticipants()) {
             String nickname = participant.getNickname().toUpperCase();
             String candidateNickname = candidate.getNickname().toUpperCase();
@@ -42,31 +56,30 @@ public class ParticipantService {
             Boolean userAlreadyInUse = false;
             Optional<User> user = participant.getUser();
             Optional<User> candidateUser = candidate.getUser();
+
             if (user.isPresent() && candidateUser.isPresent()) {
                 userAlreadyInUse = user.get().getEmail().equals(
-                        candidateUser.get().getEmail());
-            }
-            ;
+                    candidateUser.get().getEmail()
+                );
+            };
 
             if (nicknameAlreadyInUse || idAlreadyInUse || userAlreadyInUse)
                 return true;
-        }
-        ;
+        };
 
         return false;
     };
 
     public Participant createParticipant(
-            JoinRoomRequestBody body,
-            Room room,
-            User user) throws ParticipantAlreadyInRoom {
+        JoinRoomRequest body,
+        Room room,
+        User user
+    ) throws ParticipantAlreadyInRoom {
         String nickname = body.getNickname();
         Participant participant;
 
-        if (user != null)
-            participant = new Participant(nickname, room, user);
-        else
-            participant = new Participant(nickname, room);
+        if (user != null) participant = new Participant(nickname, room, user);
+        else participant = new Participant(nickname, room);
 
         synchronized (room.getParticipants()) {
             Boolean alreadyInRoom = this.isParticipantAlreadyInRoom(room, participant);
@@ -75,27 +88,29 @@ public class ParticipantService {
 
             this.repository.add(participant);
             room.getParticipants().add(participant);
-        }
-        ;
+        };
 
         log.info("Novo participante ({}) adicionado na sala ({})!",
-                participant.getUuid(),
-                room.getCode());
+            participant.getUuid(),
+            room.getCode()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
 
         return participant;
     };
 
     public Participant findParticipantByUser(
-            User user) throws ParticipantNotFound {
+        User user
+    ) throws ParticipantNotFound {
         return this.repository.findByUser(user)
-                .orElseThrow(ParticipantNotFound::new);
+            .orElseThrow(ParticipantNotFound::new);
     };
 
     public Participant findParticipantByUuid(
-            UUID uuid) throws ParticipantNotFound {
+        UUID uuid
+    ) throws ParticipantNotFound {
         return this.repository.findByUuid(uuid)
-                .orElseThrow(ParticipantNotFound::new);
+            .orElseThrow(ParticipantNotFound::new);
     };
 
     public void removeAllByRoom(Room room) {
@@ -103,54 +118,57 @@ public class ParticipantService {
             for (Participant participant : room.getParticipants()) {
                 participant.getRoom().getParticipants().remove(participant);
                 this.repository.remove(participant);
-            }
-            ;
+            };
+
             log.info("Participantes da sala ({}) removidos!", room.getCode());
-        }
-        ;
+        };
     };
 
     public void removeParticipant(Participant participant) {
         synchronized (participant.getRoom().getParticipants()) {
             participant.getRoom().getParticipants().remove(participant);
             this.repository.remove(participant);
-        }
-        ;
+        };
 
         log.info("Participante ({}) removido da sala ({})!",
-                participant.getUuid(),
-                participant.getRoom().getCode());
+            participant.getUuid(),
+            participant.getRoom().getCode()
+        );
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     };
 
     public void answerQuestion(
-            Question question,
-            Participant participant,
-            List<String> answers) {
+        Question question,
+        Participant participant,
+        List<String> answers
+    ) {
 
         List<Boolean> corrects = question.validate(answers);
 
-        int calculatedScore = scoreStrategy.calculate(participant, question, corrects);
-
         synchronized (participant) {
-            participant.setScore(participant.getScore() + calculatedScore);
+            Integer calculatedScore = this.getScoreStrategy()
+                .calculate(participant, question, corrects);
 
+            participant.setScore(participant.getScore() + calculatedScore);
+            
             for (Boolean isCorrect : corrects) {
                 if (isCorrect) {
                     participant.incrementCorrectAnswers();
                 } else {
                     participant.incrementWrongAnswers();
-                }
-            }
+                };
+            };
 
             boolean allCorrect = !corrects.contains(false);
-            participant.setNetxDifficulty(allCorrect);
-        }
+            participant.setNextDifficulty(allCorrect);
 
-        log.info("Participante ({}) respondeu a pergunta ({})! Pontos: {}",
+            log.info("Participante ({}) respondeu a pergunta ({}) e agora está com ({}) pontos!",
                 participant.getUuid(),
                 question.getRoot().getUuid(),
-                calculatedScore);
+                calculatedScore
+            );
+        }
+
         this.roomEventPublisher.emitRoomUpdated(participant.getRoom());
     }
 };

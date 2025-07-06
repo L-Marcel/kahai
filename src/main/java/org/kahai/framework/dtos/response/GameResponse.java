@@ -5,6 +5,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.kahai.framework.models.Game;
+import org.kahai.framework.questions.Question;
+import org.kahai.framework.questions.response.QuestionResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +30,7 @@ public class GameResponse {
         if (game.getQuestions() != null) { 
             this.questions = game.getQuestions()
                 .stream()
-                .map(QuestionResponse::new) 
+                .map(Question::toResponse) 
                 .collect(Collectors.toList());
         } else {
             this.questions = List.of();

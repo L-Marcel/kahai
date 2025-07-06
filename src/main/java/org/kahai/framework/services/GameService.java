@@ -55,7 +55,7 @@ public class GameService {
 
         for(int i = 0; i < body.getQuestions().size(); i++) {
             QuestionRequest question = body.getQuestions().get(i);
-            question.validate(validator, "questions." + i);
+            question.validate(validator, "questions." + i + ".");
         };
 
         validator.run();

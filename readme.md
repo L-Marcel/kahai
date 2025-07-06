@@ -13,9 +13,9 @@
 
 # Resumo
 
-Este pacote se trata de uma proposta de `framework` para a criação de aplicações de perguntas e respostas baseadas similares ao `Kahoot`, porém, que utilizando um Agente (`IA`) para elaborar variações de questões. 
+Este pacote se trata de uma proposta de `framework` para a criação de aplicações de perguntas e respostas baseadas similares ao `Kahoot`, porém, que utilizam algum tipo de Agente (`IA`) para elaborar variações de questões. 
 
-Ele foi completamente desenvolvido durante a disciplina de `PDS - Projeto de Detalhado de Software` e, para testá-lo, foram desenvolvidas três instâncias (aplicações). Sendo elas:
+Estre `framework` foi completamente desenvolvido durante a disciplina de `PDS - Projeto de Detalhado de Software` e, para testá-lo, foram desenvolvidas três instâncias (aplicações). Sendo elas:
 
 - [Hakai (azul)](https://github.com/l-marcel/hakai);
 - [Provai (vermelho)](https://github.com/L-Marcel/hakai/tree/provai);

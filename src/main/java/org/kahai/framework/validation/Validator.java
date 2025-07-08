@@ -164,7 +164,7 @@ public class Validator implements ValidatorChain {
 
         public Field<T> verify(Function<T, Boolean> condition, String error) {
             this.steps.add(() -> {
-                if(this.value == null || condition.apply(value))
+                if(this.value == null || !condition.apply(value))
                     throw new ValidationStepError(error);
             });
 

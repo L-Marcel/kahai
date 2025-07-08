@@ -17,6 +17,7 @@ module org.hakai.framework {
     exports org.kahai.framework.repositories;
     exports org.kahai.framework.validation;
     exports org.kahai.framework.utils;
+    exports org.kahai.framework;
 
     opens org.kahai.framework to org.hibernate.orm.core, org.springframework.beans, org.springframework.core;
     

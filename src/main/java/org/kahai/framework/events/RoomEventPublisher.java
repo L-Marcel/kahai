@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.kahai.framework.KahaiProperties;
 import org.kahai.framework.dtos.response.RoomResponse;
 import org.kahai.framework.questions.variants.QuestionVariant;
 import org.kahai.framework.questions.variants.response.QuestionVariantResponse;
@@ -27,10 +28,16 @@ public final class RoomEventPublisher {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private final String simpleBroker;
+
+    public RoomEventPublisher(KahaiProperties properties) {
+        this.simpleBroker = properties.getWebsocket().getSimpleBroker();
+    };
+
     public void emitRoomUpdated(Room room) {
         log.info("Evento (room-updated) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + "/updated",
+            this.simpleBroker + "/" + room.getCode() + "/updated",
             new RoomResponse(room)
         );
     };
@@ -38,7 +45,7 @@ public final class RoomEventPublisher {
     public void emitRoomClosed(Room room) {
         log.info("Evento (room-closed) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + "/closed",
+            this.simpleBroker + "/" + room.getCode() + "/closed",
             "Sala fechada!"
         );
     };
@@ -65,7 +72,7 @@ public final class RoomEventPublisher {
                 .writeValueAsString(responses);
 
             simp.convertAndSend(
-                "/channel/events/rooms/" + room.getCode() +
+                this.simpleBroker + "/" + room.getCode() +
                 "/" + room.getGame().getOwner().getUuid().toString() +
                 "/variants",
                 json
@@ -92,7 +99,7 @@ public final class RoomEventPublisher {
                 );
 
             simp.convertAndSend(
-                "/channel/events/rooms/" + room.getCode() +
+                this.simpleBroker + "/" + room.getCode() +
                 "/participants/" + participant + "/question",
                 json
             );
@@ -111,7 +118,7 @@ public final class RoomEventPublisher {
     ) {
         log.info("Evento (variants-intended) disparado!");
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() +
+            this.simpleBroker + "/" + room.getCode() +
             "/participants/" + participant + "/question",
             variants.stream().map(
                 (variant) -> variant.toResponse(false)
@@ -123,7 +130,7 @@ public final class RoomEventPublisher {
         String status
     ) {
         simp.convertAndSend(
-            "/channel/events/rooms/" + room.getCode() + "/status",
+            this.simpleBroker + "/" + room.getCode() + "/status",
             status
         );
     };

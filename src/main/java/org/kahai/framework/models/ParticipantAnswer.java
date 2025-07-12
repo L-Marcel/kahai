@@ -42,7 +42,7 @@ public class ParticipantAnswer {
     private String nickname; 
 
     @ManyToOne
-    @JoinColumn(name = "owner", nullable = false)  
+    @JoinColumn(name = "owner", nullable = true)  
     private User owner;
 
     @Column(nullable = false, length = 200)

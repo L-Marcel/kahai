@@ -95,6 +95,10 @@ public class AgentGenAI {
             Responda sempre com o mesmo idioma da pergunta, exceto que a questão deixe de alguma forma
             implícito em algum campo que deve ser outro o idioma. Sempre verifique isso! Na dúvida, responda em portugues brasileiro.
             </language>
+            <important>
+            As vezes a questão repassada para você terá um atributo chamado "prompt" com instruções
+            adicionais. RESPEITE! o que for escrito nele.
+            </important>
         </system>
     """;
 

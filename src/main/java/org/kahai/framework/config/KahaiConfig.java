@@ -10,10 +10,13 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.util.ClassUtils;
 import org.kahai.framework.Kahai;
 import org.kahai.framework.KahaiProperties;
@@ -28,14 +31,17 @@ import java.util.Map;
 import java.util.Set;
 
 @Configuration
+@EnableJpaRepositories("org.kahai.framework.repositories")
+@EntityScan("org.kahai.framework")
+@ComponentScan("org.kahai.framework")
 public class KahaiConfig {
     private static final Logger log = LoggerFactory.getLogger(KahaiConfig.class);
-    private final ApplicationContext context;
     private final Boolean indentOutput;
-
+    private final ApplicationContext context;
+    
     public KahaiConfig(ApplicationContext context, KahaiProperties properties) {
-        this.context = context;
         this.indentOutput = properties.getJackson().getIndentOutput();
+        this.context = context;
     };
 
     @JsonTypeInfo(
@@ -44,8 +50,6 @@ public class KahaiConfig {
         property = "type",
         visible = false
     ) public interface TypeJson {};
-
-    
 
     @Bean
     @Primary
@@ -71,9 +75,9 @@ public class KahaiConfig {
         );
 
         bases.forEach((base) -> {
-            configure(objectMapper, base);
-            scan(objectMapper, "org.kahai.framework", base);
-            scan(objectMapper, basePackageName, base);
+            this.configure(objectMapper, base);
+            this.scan(objectMapper, "org.kahai.framework", base);
+            this.scan(objectMapper, basePackageName, base);
         });
 
         return objectMapper;
@@ -86,7 +90,7 @@ public class KahaiConfig {
             base.getName()
         );
     };
-    
+
     public <T> void scan(ObjectMapper objectMapper, String packageName, Class<T> base) {
         Reflections reflections = new Reflections(packageName);
         Set<Class<? extends T>> subTypes = reflections.getSubTypesOf(base);
@@ -102,7 +106,7 @@ public class KahaiConfig {
         };
     };
 
-    private String getBasePackageName() {
+    public String getBasePackageName() {
         Map<String, Object> beans = this.context.getBeansWithAnnotation(Kahai.class);
         
         if (beans.isEmpty()) {

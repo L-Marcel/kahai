@@ -8,6 +8,8 @@ import org.kahai.framework.questions.Question;
 import org.kahai.framework.questions.variants.response.ConcreteQuestionVariantResponse;
 import org.kahai.framework.questions.variants.response.QuestionVariantResponse;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +26,7 @@ public final class ConcreteQuestionVariant implements QuestionVariant {
     private Difficulty difficulty = Difficulty.NORMAL;
     private List<String> options;
 
+    @JsonProperty(required = false)
     private Question original;
 
     public ConcreteQuestionVariant(

@@ -57,10 +57,23 @@ public class AgentGenAI {
             </output>
             <rules>
                 <rule>
-                A resposta certa informada deve SEMPRE aparecer EXATAMENTE igual nas opções de resposta de cada uma das variações geradas. Sem nenhuma palavra ou símbolo a mais.
+                As respostas certas informadas devem SEMPRE aparecer EXATAMENTE igual nas opções de resposta de cada uma das variações geradas. Sem nenhuma palavra ou símbolo a mais.
                 </rule>
                 <rule>
-                Mesmo que a resposta certa esteja ERRADA, ela DEVE aparecer.
+                Mesmo que as respostas certas estejam ERRADAS, elas DEVEM aparecer.
+                </rule>
+                <rule>
+                Todas as respostas certas informadas DEVEM aparecer.
+                </rule>
+                <rule>
+                Nenhuma opção de respostas além das respostas certas DEVEM ser certas.
+                </rule>
+                <rule>
+                Garanta que só as respostas informadas como certas são certas nas opções de resposta.
+                </rule>
+                <rule>
+                Repito: garanta que SOMENTE as respostas INFORMADAS como CERTAS são certas
+                nas opções de resposta.
                 </rule>
                 <rule>
                 Não coloque prefixos de listagem nas respostas, ex: A. B. C.; I. II. III. ou 1. 2. 3.
@@ -71,12 +84,16 @@ public class AgentGenAI {
                 <rule>
                 Não coloque perguntas como opções de resposta, exceto que a resposta correta também seja uma pergunta.
                 </rule>
+                <rule>
+                Certifique-se que as únicas 
+                </rule>
             </rules>
             <tone>
             Use palavras difíceis na pergunta das variações difíceis e palavras fáceis na pergunta das variações fáceis.
             </tone>
             <language>
-            Responda sempre com o mesmo idioma da pergunta. Na dúvida, responda em portugues brasileiro.
+            Responda sempre com o mesmo idioma da pergunta, exceto que a questão deixe de alguma forma
+            implícito em algum campo que deve ser outro o idioma. Sempre verifique isso! Na dúvida, responda em portugues brasileiro.
             </language>
         </system>
     """;

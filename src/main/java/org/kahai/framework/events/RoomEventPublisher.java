@@ -117,12 +117,33 @@ public final class RoomEventPublisher {
         List<QuestionVariant> variants
     ) {
         log.info("Evento (variants-intended) disparado!");
-        simp.convertAndSend(
-            this.simpleBroker + "/" + room.getCode() +
-            "/participants/" + participant + "/question",
-            variants.stream().map(
+
+        try {
+            List<QuestionVariantResponse> responses = variants.stream().map(
                 (variant) -> variant.toResponse(false)
-            ).collect(Collectors.toList()));
+            ).collect(Collectors.toList());
+
+            JavaType listType = this.objectMapper.getTypeFactory()
+                .constructCollectionType(
+                    List.class, 
+                    QuestionVariant.class
+                );
+
+            String json = this.objectMapper
+                .writerFor(listType)
+                .writeValueAsString(responses);
+
+            simp.convertAndSend(
+                this.simpleBroker + "/" + room.getCode() +
+                "/participants/" + participant + "/question",
+                json
+            );
+        } catch (Exception e) {
+            log.error(
+                "Erro ao enviar dados do evento (variants-intended)!\n\n{}\n", 
+                e.getMessage()
+            );
+        };
     };
 
     public void emitGenerationStatus(

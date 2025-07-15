@@ -90,11 +90,26 @@ public class QuestionService {
         Room room, 
         AgentGenAICallback callback
     ) {
+        this.startVariantsGeneration(
+            question,
+            room,
+            callback,
+            () -> {}
+        );
+    };
+
+    private void startVariantsGeneration(
+        Question question, 
+        Room room, 
+        AgentGenAICallback callback,
+        Runnable onError
+    ) {
         log.info("Iniciando geração das variantes da pergunta ({})!", question.getRoot().getUuid());
         this.pedagogicalAgent.generateRoomQuestionsVariants(
             question, 
             room, 
-            callback
+            callback,
+            onError
         );
     };
 
@@ -132,11 +147,21 @@ public class QuestionService {
             request.getRoom(),
             (variants) -> {
                 request.getGenerateVariants().addAll(variants);
-                log.info("Restam %d questões para gerar variantes da sala ({})!", 
+                log.info("Restam {} questões para gerar variantes da sala ({})!", 
                     request.getPeddingQuestions().size(), 
                     request.getRoom().getCode()
                 );
                 this.startAllVariantsGeneration(request);
+            },
+            () -> {
+                this.roomEventPublisher.emitVariantsGenerated(
+                    request.getRoom(), 
+                    request.getGenerateVariants()
+                        .stream()
+                        .collect(Collectors.toList())
+                );
+                log.info("Nem todas as variantes da sala ({}) foram geradas com sucesso!", request.getRoom().getCode());
+                generatingRooms.remove(request.getRoom().getCode());
             }
         );
     };

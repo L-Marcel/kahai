@@ -76,6 +76,10 @@ public class AgentGenAI {
                 nas opções de resposta.
                 </rule>
                 <rule>
+                IMPORTANTE: não preencha os valores dos campos "original" e "session", deixe que eles continuem
+                sendo null, assim como nos exemplos e assim como você recebera.
+                </rule>
+                <rule>
                 Não coloque prefixos de listagem nas respostas, ex: A. B. C.; I. II. III. ou 1. 2. 3.
                 </rule>
                 <rule>
@@ -86,6 +90,10 @@ public class AgentGenAI {
                 </rule>
                 <rule>
                 Certifique-se que as únicas 
+                </rule>
+                <rule>
+                IMPORTANTE: o formato da sua resposta deve seguir extritamente o formato
+                dos exemplos, sem nenhum campo a mais ou a menos.
                 </rule>
             </rules>
             <tone>
@@ -131,7 +139,8 @@ public class AgentGenAI {
     public void generateRoomQuestionsVariants(
         Question question,
         Room room,
-        AgentGenAICallback callback
+        AgentGenAICallback callback,
+        Runnable onError
     ) {
         try {
             String jsonExample = this.buildExamplesPrompt(question);
@@ -184,6 +193,7 @@ public class AgentGenAI {
 
                             callback.accept(variants);
                         } catch (IOException e) {
+                            onError.run();
                             log.error(
                                 "Formato invalido recebido pela IA!\n\n{}\n", 
                                 e.getMessage()
@@ -194,6 +204,7 @@ public class AgentGenAI {
                             );
                         }
                     }, () -> {
+                        onError.run();
                         log.error(
                             "Falha ao gerar variações da pergunta ({})!", 
                             question.getRoot().getUuid()
@@ -206,6 +217,7 @@ public class AgentGenAI {
                 }
             );
         } catch (Exception e) {
+            onError.run();
             log.error(
                 "Falha ao gerar variações da pergunta ({})!\n\n{}\n", 
                 question.getRoot().getUuid(), 

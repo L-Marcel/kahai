@@ -29,10 +29,24 @@ public final class ConcreteQuestionVariant implements QuestionVariant {
     @JsonProperty(required = false)
     private Question original;
 
+    @JsonProperty(required = false)
+    private UUID session;
+
     public ConcreteQuestionVariant(
         String question,
         Difficulty difficulty,
         List<String> options
+    ) {
+        this.question = question;
+        this.difficulty = difficulty;
+        this.options = options;
+    };
+
+    public ConcreteQuestionVariant(
+        String question,
+        Difficulty difficulty,
+        List<String> options,
+        UUID session
     ) {
         this.question = question;
         this.difficulty = difficulty;

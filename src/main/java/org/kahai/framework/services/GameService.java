@@ -6,7 +6,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.kahai.framework.questions.request.QuestionRequest;
-import org.kahai.framework.questions.storage.QuestionStorage;
 import org.kahai.framework.dtos.request.GameRequest;
 import org.kahai.framework.errors.GameNotFound;
 import org.kahai.framework.models.Game;
@@ -14,6 +13,7 @@ import org.kahai.framework.models.User;
 import org.kahai.framework.questions.ConcreteQuestion;
 import org.kahai.framework.questions.Question;
 import org.kahai.framework.repositories.GameRepository;
+import org.kahai.framework.storage.QuestionStorage;
 import org.kahai.framework.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

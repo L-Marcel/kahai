@@ -6,6 +6,7 @@ module org.hakai.framework {
     exports org.kahai.framework.questions.response;
     exports org.kahai.framework.questions.variants;
     exports org.kahai.framework.questions.variants.response;
+    exports org.kahai.framework.storage;
     exports org.kahai.framework.services;
     exports org.kahai.framework.services.strategies;
     exports org.kahai.framework.services.queue;

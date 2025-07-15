@@ -176,6 +176,7 @@ public class AgentGenAI {
                             );
 
                             variants.forEach(variant -> variant.getRoot().setOriginal(question));
+                            
                             publisher.emitGenerationStatus(
                                 room,
                                 "Variações geradas com sucesso"

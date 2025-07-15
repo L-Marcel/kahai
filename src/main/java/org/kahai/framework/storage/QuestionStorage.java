@@ -1,46 +1,22 @@
-package org.kahai.framework.questions.storage;
+package org.kahai.framework.storage;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.kahai.framework.errors.FileError;
 import org.kahai.framework.questions.Question;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class QuestionStorage {
+public class QuestionStorage extends Storage<Question> {
     private static final Logger log = LoggerFactory.getLogger(QuestionStorage.class);
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    protected Path getStorageFolder() throws FileError {
-        try {
-            Path path = Paths.get("").toAbsolutePath();
-
-            String lastSegment = path.getFileName().toString();
-            if (lastSegment.equals("backend") || lastSegment.equals("src")) {
-                path = path.getParent();
-            };
-
-            return path.resolve("data");
-        } catch (Exception e) {
-            throw new FileError();
-        }
-    };
-
+    
     protected String getFilename(
         UUID uuid
     ) {
@@ -50,7 +26,7 @@ public class QuestionStorage {
     protected Path getPath(
         UUID uuid
     ) {
-        Path path = this.getStorageFolder();
+        Path path = this.getStorageFolder("data");
         return path.resolve(this.getFilename(uuid));
     };
 
@@ -61,7 +37,7 @@ public class QuestionStorage {
         
         try {
             Path path = this.getPath(uuid);
-            Files.deleteIfExists(path);
+            this.delete(path);
             log.info("Questão ({}) deletada!", uuid);
         } catch (Exception e) {
             log.error(
@@ -80,11 +56,7 @@ public class QuestionStorage {
 
         try {
             Path path = this.getPath(uuid);
-            try (FileOutputStream outputStream = new FileOutputStream(path.toFile())) {
-                String json = objectMapper.writeValueAsString(question);
-                outputStream.write(json.getBytes());
-            };
-
+            this.write(path, question);
             log.info("Arquivo da questão ({}) escrito!", uuid);
         } catch (Exception e) {
             log.error(
@@ -106,7 +78,7 @@ public class QuestionStorage {
         }
         
         try {
-            Question question = objectMapper.readValue(file, Question.class);
+            Question question = this.read(path, Question.class);
             log.info("Questão ({}) carregada!", uuid);
             return question;
         } catch (IOException e) {
@@ -115,7 +87,6 @@ public class QuestionStorage {
                 uuid, 
                 e.getMessage()
             );
-            
             throw new FileError();
         }
     };

@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.kahai.framework.agents.AgentGenAI;
@@ -113,7 +114,10 @@ public class QuestionService {
         );
     };
 
-    public void startAllVariantsGeneration(Room room) {
+    public void startAllVariantsGeneration(
+        Room room, 
+        Consumer<List<QuestionVariant>> onFinish
+    ) {
         if(generatingRooms.add(room.getCode())) {
             List<Question> questions = this.findQuestionsByGame(room.getGame());
 
@@ -123,19 +127,30 @@ public class QuestionService {
             );
 
             log.info("Iniciando geração das variantes das pergunta da sala ({})!", room.getCode());
-            this.startAllVariantsGeneration(request);
+            this.startAllVariantsGeneration(request, onFinish);
         };
     };
 
-    private void startAllVariantsGeneration(QuestionVariantsRequest request) {
+    public void startAllVariantsGeneration(Room room) {
+        this.startAllVariantsGeneration(room, (variants) -> {});
+    };
+
+    private void startAllVariantsGeneration(
+        QuestionVariantsRequest request, 
+        Consumer<List<QuestionVariant>> onFinish
+    ) {
         Question question = request.getPeddingQuestions().poll();
         
         if(question == null) {
+            List<QuestionVariant> result = request.getGenerateVariants()
+                .stream()
+                .collect(Collectors.toList());
+                
+            onFinish.accept(result);
+            
             this.roomEventPublisher.emitVariantsGenerated(
-                request.getRoom(), 
-                request.getGenerateVariants()
-                    .stream()
-                    .collect(Collectors.toList())
+                request.getRoom(),
+                result
             );
             log.info("Variantes das perguntas da sala ({}) geradas!", request.getRoom().getCode());
             generatingRooms.remove(request.getRoom().getCode());
@@ -151,14 +166,18 @@ public class QuestionService {
                     request.getPeddingQuestions().size(), 
                     request.getRoom().getCode()
                 );
-                this.startAllVariantsGeneration(request);
+                this.startAllVariantsGeneration(request, onFinish);
             },
             () -> {
+                List<QuestionVariant> result = request.getGenerateVariants()
+                    .stream()
+                    .collect(Collectors.toList());
+                
+                onFinish.accept(result);
+
                 this.roomEventPublisher.emitVariantsGenerated(
                     request.getRoom(), 
-                    request.getGenerateVariants()
-                        .stream()
-                        .collect(Collectors.toList())
+                    result
                 );
                 log.info("Nem todas as variantes da sala ({}) foram geradas com sucesso!", request.getRoom().getCode());
                 generatingRooms.remove(request.getRoom().getCode());
